@@ -1,0 +1,106 @@
+<view class="container">
+  <!-- 费用信息卡片 -->
+  <view class="amount-card">
+    <text class="amount-label">支付金额</text>
+    <view class="amount-value">
+      <text class="currency">¥</text>
+      <text class="amount">{{amount}}</text>
+    </view>
+    <text class="amount-desc">{{paymentType === 'parking' ? '停车费用' : '预约费用'}}</text>
+  </view>
+
+  <!-- 订单详情 -->
+  <view class="section">
+    <view class="section-title">订单详情</view>
+    <view class="detail-list">
+      <view class="detail-item">
+        <text class="item-label">停车场</text>
+        <text class="item-value">{{orderInfo.parkingName}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{orderInfo.spaceCode}}">
+        <text class="item-label">车位</text>
+        <text class="item-value">{{orderInfo.spaceCode}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">入场时间</text>
+        <text class="item-value">{{orderInfo.entryTime}}</text>
+      </view>
+      <view class="detail-item" wx:if="{{orderInfo.exitTime}}">
+        <text class="item-label">离场时间</text>
+        <text class="item-value">{{orderInfo.exitTime}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">停车时长</text>
+        <text class="item-value">{{orderInfo.duration}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="item-label">订单编号</text>
+        <text class="item-value order-no">{{orderInfo.orderNo}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 费用明细 -->
+  <view class="section">
+    <view class="section-title">费用明细</view>
+    <view class="cost-list">
+      <view class="cost-item">
+        <text class="cost-label">停车费用</text>
+        <text class="cost-value">¥{{orderInfo.parkingFee}}</text>
+      </view>
+      <view class="cost-item" wx:if="{{orderInfo.discount > 0}}">
+        <text class="cost-label">优惠减免</text>
+        <text class="cost-value discount">-¥{{orderInfo.discount}}</text>
+      </view>
+      <view class="divider"></view>
+      <view class="cost-item total">
+        <text class="cost-label">应付金额</text>
+        <text class="cost-value">¥{{amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 支付方式 -->
+  <view class="section">
+    <view class="section-title">支付方式</view>
+    <view class="pay-methods">
+      <view class="pay-method {{selectedMethod === 'wechat' ? 'active' : ''}}" bindtap="selectMethod" data-method="wechat">
+        <view class="method-left">
+          <view class="method-icon wechat">
+            <image src="/static/icons/wechat-pay.png" mode="aspectFit"></image>
+          </view>
+          <view class="method-info">
+            <text class="method-name">微信支付</text>
+            <text class="method-desc">推荐使用</text>
+          </view>
+        </view>
+        <view class="method-check" wx:if="{{selectedMethod === 'wechat'}}">
+          <image src="/static/icons/check.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="pay-method {{selectedMethod === 'balance' ? 'active' : ''}}" bindtap="selectMethod" data-method="balance">
+        <view class="method-left">
+          <view class="method-icon balance">
+            <image src="/static/icons/wallet.png" mode="aspectFit"></image>
+          </view>
+          <view class="method-info">
+            <text class="method-name">余额支付</text>
+            <text class="method-desc">可用余额 ¥{{balance}}</text>
+          </view>
+        </view>
+        <view class="method-check" wx:if="{{selectedMethod === 'balance'}}">
+          <image src="/static/icons/check.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部支付按钮 -->
+  <view class="bottom-bar">
+    <view class="pay-info">
+      <text class="pay-label">实付金额：</text>
+      <text class="pay-amount">¥{{amount}}</text>
+    </view>
+    <button class="pay-btn" bindtap="confirmPay">立即支付</button>
+  </view>
+</view>

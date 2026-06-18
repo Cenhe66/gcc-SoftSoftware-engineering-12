@@ -1,0 +1,378 @@
+.container {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+/* 页面标题 */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #323233;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #969799;
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 16px;
+}
+
+/* 停车场选择器 */
+.parking-selector {
+  border: 2px dashed #ebedf0;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.selector-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selector-content.selected {
+  justify-content: space-between;
+}
+
+.selector-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.selector-text {
+  font-size: 14px;
+  color: #969799;
+}
+
+.selected-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 4px;
+}
+
+.selected-address {
+  font-size: 12px;
+  color: #969799;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.3;
+}
+
+/* 表单项 */
+.form-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 14px;
+  color: #323233;
+  width: 80px;
+}
+
+.form-input {
+  flex: 1;
+  text-align: right;
+  font-size: 14px;
+  color: #323233;
+}
+
+.form-input::placeholder {
+  color: #c8c9cc;
+}
+
+/* 单选组 */
+.radio-group {
+  display: flex;
+  gap: 12px;
+}
+
+.radio-item {
+  padding: 8px 16px;
+  background: #f7f8fa;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #969799;
+}
+
+.radio-item.active {
+  background: #1989fa;
+  color: #fff;
+}
+
+/* 时间模式 */
+.time-mode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.mode-label {
+  font-size: 14px;
+  color: #323233;
+}
+
+.mode-switch {
+  display: flex;
+  background: #f7f8fa;
+  border-radius: 16px;
+  padding: 4px;
+}
+
+.mode-item {
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #969799;
+  border-radius: 12px;
+}
+
+.mode-item.active {
+  background: #fff;
+  color: #1989fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* 星期选择 */
+.weekdays {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.weekday {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: #f7f8fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #969799;
+}
+
+.weekday.selected {
+  background: #1989fa;
+  color: #fff;
+}
+
+/* 时间段 */
+.time-range {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.time-separator {
+  font-size: 14px;
+  color: #969799;
+  margin-top: 20px;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f7f8fa;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #323233;
+}
+
+/* 定价设置 */
+.price-setting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.price-symbol {
+  font-size: 24px;
+  color: #ff976a;
+  margin-right: 4px;
+}
+
+.price-input {
+  width: 100px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff976a;
+  text-align: center;
+  background: transparent;
+  z-index: 1;
+}
+
+.price-unit {
+  font-size: 14px;
+  color: #969799;
+  margin-left: 4px;
+}
+
+.price-suggestion {
+  text-align: center;
+}
+
+.suggestion-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.suggestion-value {
+  font-size: 14px;
+  color: #1989fa;
+  font-weight: 500;
+}
+
+.suggestion-desc {
+  font-size: 12px;
+  color: #c8c9cc;
+}
+
+/* 收益预估 */
+.earnings-info {
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 0;
+  margin-bottom: 12px;
+}
+
+.earnings-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.earnings-label {
+  font-size: 12px;
+  color: #969799;
+  margin-bottom: 8px;
+}
+
+.earnings-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.earnings-value.highlight {
+  color: #ff976a;
+}
+
+.earnings-notice {
+  text-align: center;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.earnings-notice text {
+  font-size: 12px;
+  color: #969799;
+}
+
+/* 共享须知 */
+.notice {
+  background: rgba(255, 151, 106, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff976a;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.notice-content {
+  font-size: 12px;
+  color: #969799;
+  line-height: 1.8;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn.disabled {
+  background: #c8c9cc;
+}

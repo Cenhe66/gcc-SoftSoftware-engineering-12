@@ -1,0 +1,96 @@
+<view class="container">
+  <!-- 统计卡片 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-value">{{stats.totalShares}}</text>
+      <text class="stat-label">共享次数</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.activeShares}}</text>
+      <text class="stat-label">进行中</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">¥{{stats.totalEarnings}}</text>
+      <text class="stat-label">累计收益</text>
+    </view>
+  </view>
+
+  <!-- 共享列表 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">我的共享</text>
+      <view class="filter-tabs">
+        <view class="filter-tab {{currentFilter === 'active' ? 'active' : ''}}" bindtap="switchFilter" data-filter="active">进行中</view>
+        <view class="filter-tab {{currentFilter === 'history' ? 'active' : ''}}" bindtap="switchFilter" data-filter="history">已结束</view>
+      </view>
+    </view>
+
+    <view class="share-list">
+      <view class="share-card" wx:for="{{shareList}}" wx:key="id">
+        <!-- 状态标签 -->
+        <view class="status-tag {{item.status}}">{{item.statusText}}</view>
+
+        <!-- 停车场信息 -->
+        <view class="parking-info">
+          <text class="parking-name">{{item.parkingName}}</text>
+          <text class="space-code">车位 {{item.spaceCode}}</text>
+        </view>
+
+        <!-- 共享时间 -->
+        <view class="time-info">
+          <view class="time-row">
+            <text class="time-label">共享时段</text>
+            <text class="time-value">{{item.timeRange}}</text>
+          </view>
+          <view class="time-row" wx:if="{{item.dateRange}}">
+            <text class="time-label">共享日期</text>
+            <text class="time-value">{{item.dateRange}}</text>
+          </view>
+        </view>
+
+        <!-- 价格信息 -->
+        <view class="price-info">
+          <view class="price-item">
+            <text class="price-label">定价</text>
+            <text class="price-value">¥{{item.pricePerHour}}/小时</text>
+          </view>
+          <view class="price-item">
+            <text class="price-label">已共享</text>
+            <text class="price-value">{{item.sharedHours}}小时</text>
+          </view>
+          <view class="price-item earnings">
+            <text class="price-label">收益</text>
+            <text class="price-value highlight">¥{{item.earnings}}</text>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="action-bar" wx:if="{{item.status === 'active'}}">
+          <button class="btn pause" bindtap="pauseShare" data-id="{{item.id}}">暂停共享</button>
+          <button class="btn stop" bindtap="stopShare" data-id="{{item.id}}">结束共享</button>
+        </view>
+        <view class="action-bar" wx:if="{{item.status === 'paused'}}">
+          <button class="btn resume" bindtap="resumeShare" data-id="{{item.id}}">恢复共享</button>
+          <button class="btn stop" bindtap="stopShare" data-id="{{item.id}}">结束共享</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && shareList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && shareList.length === 0}}">
+      <image src="/static/icons/空状态图标.png" mode="aspectFit"></image>
+      <text>{{emptyText}}</text>
+      <button class="publish-btn" bindtap="goToPublish">发布共享</button>
+    </view>
+  </view>
+</view>

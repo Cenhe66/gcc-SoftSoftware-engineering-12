@@ -1,0 +1,257 @@
+.container {
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+/* 区块标题 */
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 12px;
+}
+
+/* 当前停车 */
+.current-parking {
+  margin-bottom: 24px;
+}
+
+.parking-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.parking-card.active {
+  border: 2px solid #1989fa;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.parking-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.status-tag {
+  font-size: 12px;
+  color: #1989fa;
+  background: rgba(25, 137, 250, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.card-body {
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #969799;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #323233;
+}
+
+.info-value.highlight {
+  color: #1989fa;
+  font-weight: 500;
+}
+
+.info-value.price {
+  color: #ff976a;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-footer {
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.pay-btn {
+  width: 100%;
+  height: 44px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 历史记录区块 */
+.history-section {
+  margin-top: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-tab {
+  padding: 6px 16px;
+  background: #f7f8fa;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #969799;
+}
+
+.filter-tab.active {
+  background: #1989fa;
+  color: #fff;
+}
+
+/* 记录列表 */
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.record-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.record-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.record-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.record-status.paid {
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.record-status.unpaid {
+  color: #ff976a;
+  background: rgba(255, 151, 106, 0.1);
+}
+
+.record-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.time-info {
+  flex: 1;
+}
+
+.time-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.time-row:last-child {
+  margin-bottom: 0;
+}
+
+.time-label {
+  font-size: 12px;
+  color: #969799;
+  width: 40px;
+}
+
+.time-value {
+  font-size: 13px;
+  color: #323233;
+}
+
+.record-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.duration {
+  font-size: 12px;
+  color: #969799;
+  margin-bottom: 4px;
+}
+
+.amount {
+  font-size: 18px;
+  font-weight: bold;
+  color: #323233;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 16px;
+}
+
+.load-more text {
+  font-size: 12px;
+  color: #969799;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 16px;
+}
+
+.empty-state image {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state text {
+  font-size: 14px;
+  color: #969799;
+}

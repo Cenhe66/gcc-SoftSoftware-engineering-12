@@ -1,0 +1,302 @@
+.container {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+/* 头部卡片 */
+.header-card {
+  background: linear-gradient(135deg, #1989fa 0%, #4aa3ff 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.parking-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.parking-address {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.address-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.parking-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.parking-tags .tag {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+/* 统计卡片 */
+.stats-card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.stat-value.free {
+  color: #07c160;
+}
+
+.stat-value.total {
+  color: #323233;
+}
+
+.stat-value.price {
+  color: #ff976a;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: #ebedf0;
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+}
+
+/* 价格详情 */
+.price-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  font-size: 14px;
+  color: #969799;
+}
+
+.price-value {
+  font-size: 14px;
+  color: #323233;
+  font-weight: 500;
+}
+
+/* 营业时间 */
+.business-time {
+  font-size: 14px;
+  color: #323233;
+}
+
+/* 图例 */
+.legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #969799;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.legend-dot.free {
+  background: #07c160;
+}
+
+.legend-dot.occupied {
+  background: #ee0a24;
+}
+
+.legend-dot.reserved {
+  background: #ff976a;
+}
+
+/* 楼层标签 */
+.floor-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.floor-tab {
+  padding: 8px 16px;
+  background: #f7f8fa;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #969799;
+  white-space: nowrap;
+}
+
+.floor-tab.active {
+  background: #1989fa;
+  color: #fff;
+}
+
+/* 车位网格 */
+.space-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.space-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.space-item.free {
+  background: rgba(7, 193, 96, 0.1);
+  border: 1px solid #07c160;
+}
+
+.space-item.occupied {
+  background: rgba(238, 10, 36, 0.1);
+  border: 1px solid #ee0a24;
+}
+
+.space-item.reserved {
+  background: rgba(255, 151, 106, 0.1);
+  border: 1px solid #ff976a;
+}
+
+.space-code {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.space-item.free .space-code {
+  color: #07c160;
+}
+
+.space-item.occupied .space-code {
+  color: #ee0a24;
+}
+
+.space-item.reserved .space-code {
+  color: #ff976a;
+}
+
+.space-type {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 8px;
+  background: #1989fa;
+  color: #fff;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 24px;
+}
+
+.action-btn.navigate {
+  width: 120px;
+  background: #f7f8fa;
+  color: #323233;
+  font-size: 14px;
+}
+
+.action-btn.navigate image {
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+}
+
+.action-btn.reserve {
+  flex: 1;
+  background: #1989fa;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}

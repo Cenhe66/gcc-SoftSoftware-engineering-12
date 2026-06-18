@@ -1,0 +1,47 @@
+<view class="container">
+  <!-- 请求信息 -->
+  <view class="request-card" wx:if="{{requestInfo.id}}">
+    <view class="request-header">
+      <text class="request-title">挪车请求</text>
+      <text class="request-status {{requestInfo.status}}">{{requestInfo.statusText}}</text>
+    </view>
+    <view class="request-info">
+      <text class="info-item">车位：{{requestInfo.spaceCode}}</text>
+      <text class="info-item">时间：{{requestInfo.createTime}}</text>
+    </view>
+  </view>
+
+  <!-- 消息列表 -->
+  <scroll-view class="message-list" scroll-y="true" scroll-into-view="{{lastMessageId}}" enhanced="true" show-scrollbar="false">
+    <view class="message-item {{item.isSelf ? 'self' : 'other'}}" wx:for="{{messageList}}" wx:key="id" id="msg-{{item.id}}">
+      <view class="message-content">
+        <text class="message-text">{{item.content}}</text>
+        <text class="message-time">{{item.time}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 快捷回复 -->
+  <view class="quick-replies" wx:if="{{requestInfo.status === 0}}">
+    <scroll-view scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="reply-list">
+        <view class="reply-item" wx:for="{{quickReplies}}" wx:key="index" bindtap="sendQuickReply" data-text="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 输入框 -->
+  <view class="input-bar" wx:if="{{requestInfo.status === 0}}">
+    <input class="message-input" type="text" placeholder="输入消息..." value="{{inputMessage}}" bindinput="onInputMessage" confirm-type="send" bindconfirm="sendMessage" />
+    <button class="send-btn {{inputMessage ? '' : 'disabled'}}" bindtap="sendMessage" disabled="{{!inputMessage}}">
+      发送
+    </button>
+  </view>
+
+  <!-- 已结束提示 -->
+  <view class="ended-bar" wx:if="{{requestInfo.status === 1}}">
+    <text>该挪车请求已结束</text>
+  </view>
+</view>

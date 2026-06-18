@@ -1,0 +1,262 @@
+.container {
+  padding: 16px;
+  padding-bottom: 100px;
+}
+
+/* 停车场卡片 */
+.parking-card {
+  background: linear-gradient(135deg, #1989fa 0%, #4aa3ff 100%);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.parking-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.parking-address {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.address-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+}
+
+.parking-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.price-label {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.price-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 16px;
+}
+
+/* 表单项 */
+.form-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 14px;
+  color: #323233;
+  width: 80px;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #323233;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  opacity: 0.3;
+}
+
+.form-input {
+  flex: 1;
+  text-align: right;
+  font-size: 14px;
+  color: #323233;
+}
+
+.form-input::placeholder {
+  color: #c8c9cc;
+}
+
+/* 时长信息 */
+.duration-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.duration-label {
+  font-size: 14px;
+  color: #323233;
+}
+
+.duration-value {
+  font-size: 14px;
+  color: #1989fa;
+  font-weight: 500;
+}
+
+/* 已选车位 */
+.selected-space {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.space-code {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1989fa;
+  background: rgba(25, 137, 250, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.space-type {
+  font-size: 12px;
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* 费用详情 */
+.cost-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cost-item.total {
+  padding-top: 12px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.cost-label {
+  font-size: 14px;
+  color: #969799;
+}
+
+.cost-value {
+  font-size: 14px;
+  color: #323233;
+}
+
+.cost-value.price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff976a;
+}
+
+/* 预约须知 */
+.notice {
+  background: rgba(255, 151, 106, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff976a;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.notice-content {
+  font-size: 12px;
+  color: #969799;
+  line-height: 1.8;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.price-info {
+  display: flex;
+  align-items: baseline;
+}
+
+.total-label {
+  font-size: 14px;
+  color: #969799;
+  margin-right: 4px;
+}
+
+.total-price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff976a;
+}
+
+.submit-btn {
+  width: 140px;
+  height: 48px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn.disabled {
+  background: #c8c9cc;
+}

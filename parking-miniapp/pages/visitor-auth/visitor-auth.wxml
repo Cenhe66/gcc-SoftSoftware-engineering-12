@@ -1,0 +1,114 @@
+<view class="container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-icon">
+      <image src="/static/icons/访客授权.png" mode="aspectFit"></image>
+    </view>
+    <text class="page-title">访客授权</text>
+    <text class="page-desc">为访客生成临时停车授权码，方便访客快速入场</text>
+  </view>
+
+  <!-- 选择停车场 -->
+  <view class="section">
+    <view class="section-title">选择停车场</view>
+    <view class="parking-selector" bindtap="selectParking">
+      <view class="selector-content" wx:if="{{!selectedParking.id}}">
+        <image class="selector-icon" src="/static/icons/location.png" mode="aspectFit"></image>
+        <text class="selector-text">请选择停车场</text>
+        <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+      </view>
+      <view class="selector-content selected" wx:else>
+        <view class="selected-info">
+          <text class="selected-name">{{selectedParking.name}}</text>
+          <text class="selected-address">{{selectedParking.address}}</text>
+        </view>
+        <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 访客信息 -->
+  <view class="section">
+    <view class="section-title">访客信息</view>
+    <view class="form-item">
+      <text class="form-label">访客姓名</text>
+      <input class="form-input" type="text" placeholder="请输入访客姓名" value="{{visitorName}}" bindinput="onVisitorNameInput" maxlength="20"/>
+    </view>
+    <view class="form-item">
+      <text class="form-label">车牌号码</text>
+      <input class="form-input" type="text" placeholder="请输入访客车牌号" value="{{visitorPlate}}" bindinput="onVisitorPlateInput" maxlength="10"/>
+    </view>
+    <view class="form-item">
+      <text class="form-label">联系电话</text>
+      <input class="form-input" type="number" placeholder="请输入访客手机号" value="{{visitorPhone}}" bindinput="onVisitorPhoneInput" maxlength="11"/>
+    </view>
+  </view>
+
+  <!-- 授权时间 -->
+  <view class="section">
+    <view class="section-title">授权时间</view>
+    <view class="form-item">
+      <text class="form-label">有效日期</text>
+      <picker mode="date" value="{{validDate}}" start="{{minDate}}" end="{{maxDate}}" bindchange="onDateChange">
+        <view class="picker-value">
+          <text>{{validDate}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <text class="form-label">有效时长</text>
+      <picker mode="selector" range="{{durationOptions}}" value="{{durationIndex}}" bindchange="onDurationChange">
+        <view class="picker-value">
+          <text>{{durationOptions[durationIndex]}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="section">
+    <view class="section-title">备注（选填）</view>
+    <textarea class="remark-input" placeholder="如有特殊说明，请在此填写..." value="{{remark}}" bindinput="onRemarkInput" maxlength="50"></textarea>
+    <text class="remark-count">{{remark.length}}/50</text>
+  </view>
+
+  <!-- 生成授权码按钮 -->
+  <view class="bottom-bar">
+    <button class="generate-btn {{canGenerate ? '' : 'disabled'}}" bindtap="generateAuthCode" disabled="{{!canGenerate}}">
+      生成授权码
+    </button>
+  </view>
+
+  <!-- 授权码弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">访客授权码</text>
+        <view class="close-btn" bindtap="closeModal">
+          <text class="close-icon">×</text>
+        </view>
+      </view>
+      <view class="modal-body">
+        <view class="auth-code">{{authCode}}</view>
+        <view class="code-info">
+          <text class="info-item">有效期至：{{expireTime}}</text>
+          <text class="info-item">适用停车场：{{selectedParking.name}}</text>
+        </view>
+        <view class="qr-code">
+          <canvas type="2d" id="authCodeCanvas" class="qr-canvas" style="width: 200px; height: 200px;"></canvas>
+          <text>扫码快速入场</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="share-btn" bindtap="shareAuthCode">分享给访客</button>
+        <button class="save-btn" bindtap="saveAuthCode">保存到相册</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 隐藏的canvas用于绘制授权码图片 -->
+  <canvas type="2d" id="saveCanvas" style="position: fixed; left: -9999px; top: -9999px; width: 300px; height: 400px;"></canvas>
+</view>

@@ -1,0 +1,85 @@
+<view class="container">
+  <!-- 总收益卡片 -->
+  <view class="earnings-card">
+    <text class="earnings-title">累计收益（元）</text>
+    <text class="earnings-amount">{{totalEarnings}}</text>
+    <view class="earnings-detail">
+      <view class="detail-item">
+        <text class="detail-value">{{monthEarnings}}</text>
+        <text class="detail-label">本月收益</text>
+      </view>
+      <view class="detail-divider"></view>
+      <view class="detail-item">
+        <text class="detail-value">{{todayEarnings}}</text>
+        <text class="detail-label">今日收益</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 账单列表 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">收益明细</text>
+      <view class="month-selector" bindtap="selectMonth">
+        <text>{{currentMonth}}</text>
+        <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <view class="bill-list">
+      <view class="bill-item" wx:for="{{billList}}" wx:key="id">
+        <view class="bill-left">
+          <view class="bill-icon {{item.type}}">
+            <image src="/static/icons/{{item.type === 'income' ? 'wallet' : 'arrow-right'}}.png" mode="aspectFit"></image>
+          </view>
+          <view class="bill-info">
+            <text class="bill-title">{{item.title}}</text>
+            <text class="bill-desc">{{item.description}}</text>
+            <text class="bill-time">{{item.time}}</text>
+          </view>
+        </view>
+        <view class="bill-right">
+          <text class="bill-amount {{item.type}}">{{item.type === 'income' ? '+' : '-'}}{{item.amount}}</text>
+          <text class="bill-status {{item.status}}">{{item.statusText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && billList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && billList.length === 0}}">
+      <image src="/static/icons/空状态图标.png" mode="aspectFit"></image>
+      <text>暂无收益记录</text>
+    </view>
+  </view>
+
+  <!-- 月份选择弹窗 -->
+  <view class="month-picker" wx:if="{{showMonthPicker}}">
+    <view class="picker-mask" bindtap="closeMonthPicker"></view>
+    <view class="picker-content">
+      <view class="picker-header">
+        <text class="picker-title">选择月份</text>
+        <view class="close-btn" bindtap="closeMonthPicker">
+          <text class="close-icon">×</text>
+        </view>
+      </view>
+      <view class="picker-body">
+        <view class="month-list">
+          <view class="month-item" wx:for="{{monthOptions}}" wx:key="index" bindtap="confirmMonth" data-index="{{index}}">
+            <text class="month-text {{currentMonth === item.text ? 'active' : ''}}">{{item.text}}</text>
+            <view class="check-icon" wx:if="{{currentMonth === item.text}}">
+              <image src="/static/icons/check.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

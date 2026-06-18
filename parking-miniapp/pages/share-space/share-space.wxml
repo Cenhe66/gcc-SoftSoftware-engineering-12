@@ -1,0 +1,175 @@
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">发布共享车位</text>
+    <text class="page-subtitle">将您的空闲车位共享给他人，赚取收益</text>
+  </view>
+
+  <!-- 选择停车场 -->
+  <view class="section">
+    <view class="section-title">选择停车场</view>
+    <view class="parking-selector" bindtap="selectParking">
+      <view class="selector-content" wx:if="{{!selectedParking.id}}">
+        <image class="selector-icon" src="/static/icons/add.png" mode="aspectFit"></image>
+        <text class="selector-text">请选择停车场</text>
+      </view>
+      <view class="selector-content selected" wx:else>
+        <view class="selected-info">
+          <text class="selected-name">{{selectedParking.name}}</text>
+          <text class="selected-address">{{selectedParking.address}}</text>
+        </view>
+        <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 车位信息 -->
+  <view class="section">
+    <view class="section-title">车位信息</view>
+    <view class="form-item">
+      <text class="form-label">车位编号</text>
+      <input class="form-input" type="text" placeholder="如：B2-015" value="{{spaceCode}}" bindinput="onSpaceCodeInput" maxlength="10"/>
+    </view>
+    <view class="form-item">
+      <text class="form-label">车位类型</text>
+      <view class="radio-group">
+        <view 
+          class="radio-item {{spaceType === 0 ? 'active' : ''}}"
+          bindtap="selectSpaceType"
+          data-type="0"
+        >普通车位</view>
+        <view 
+          class="radio-item {{spaceType === 1 ? 'active' : ''}}"
+          bindtap="selectSpaceType"
+          data-type="1"
+        >充电车位</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 共享时间 -->
+  <view class="section">
+    <view class="section-title">共享时间</view>
+    <view class="time-mode">
+      <text class="mode-label">共享模式</text>
+      <view class="mode-switch">
+        <view 
+          class="mode-item {{timeMode === 'fixed' ? 'active' : ''}}"
+          bindtap="switchTimeMode"
+          data-mode="fixed"
+        >固定时段</view>
+        <view 
+          class="mode-item {{timeMode === 'daily' ? 'active' : ''}}"
+          bindtap="switchTimeMode"
+          data-mode="daily"
+        >每日重复</view>
+      </view>
+    </view>
+
+    <!-- 固定时段 -->
+    <block wx:if="{{timeMode === 'fixed'}}">
+      <view class="form-item">
+        <text class="form-label">开始日期</text>
+        <picker mode="date" value="{{startDate}}" start="{{minDate}}" bindchange="onStartDateChange">
+          <view class="picker-value">
+            <text>{{startDate}}</text>
+            <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          </view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">结束日期</text>
+        <picker mode="date" value="{{endDate}}" start="{{startDate}}" bindchange="onEndDateChange">
+          <view class="picker-value">
+            <text>{{endDate}}</text>
+            <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          </view>
+        </picker>
+      </view>
+    </block>
+
+    <!-- 每日重复 -->
+    <block wx:if="{{timeMode === 'daily'}}">
+      <view class="weekdays">
+        <view 
+          class="weekday {{item.selected ? 'selected' : ''}}"
+          wx:for="{{weekdays}}"
+          wx:key="index"
+          bindtap="toggleWeekday"
+          data-index="{{index}}"
+        >
+          {{item.name}}
+        </view>
+      </view>
+    </block>
+
+    <!-- 时间段 -->
+    <view class="time-range">
+      <view class="time-item">
+        <text class="time-label">开始时间</text>
+        <picker mode="time" value="{{startTime}}" bindchange="onStartTimeChange">
+          <view class="picker-value">
+            <text>{{startTime}}</text>
+            <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          </view>
+        </picker>
+      </view>
+      <view class="time-separator">至</view>
+      <view class="time-item">
+        <text class="time-label">结束时间</text>
+        <picker mode="time" value="{{endTime}}" bindchange="onEndTimeChange">
+          <view class="picker-value">
+            <text>{{endTime}}</text>
+            <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <!-- 定价设置 -->
+  <view class="section">
+    <view class="section-title">定价设置</view>
+    <view class="price-setting">
+      <text class="price-symbol">¥</text>
+      <input class="price-input" type="number" placeholder="0.00" value="{{pricePerHour}}" bindinput="onPriceInput"/>
+      <text class="price-unit">/小时</text>
+    </view>
+    <view class="price-suggestion">
+      <text class="suggestion-label">建议定价：</text>
+      <text class="suggestion-value">¥{{suggestedPrice}}/小时</text>
+      <text class="suggestion-desc">（周边平均价格）</text>
+    </view>
+  </view>
+
+  <!-- 收益预估 -->
+  <view class="section" wx:if="{{estimatedEarnings > 0}}">
+    <view class="section-title">收益预估</view>
+    <view class="earnings-info">
+      <view class="earnings-item">
+        <text class="earnings-label">预计每日收益</text>
+        <text class="earnings-value">¥{{dailyEarnings}}</text>
+      </view>
+      <view class="earnings-item">
+        <text class="earnings-label">预计总收益</text>
+        <text class="earnings-value highlight">¥{{estimatedEarnings}}</text>
+      </view>
+    </view>
+    <view class="earnings-notice">
+      <text>实际收益以共享时长为准，平台将收取20%服务费</text>
+    </view>
+  </view>
+
+  <!-- 共享须知 -->
+  <view class="notice">
+    <text class="notice-title">共享须知：</text>
+    <text class="notice-content">1. 请确保您拥有该车位的合法使用权；\n2. 共享期间请保持车位空闲，避免影响他人使用；\n3. 收益将在订单完成后自动结算到您的账户；\n4. 如需暂停共享，可随时在"我的共享"中操作。</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <button class="submit-btn {{canSubmit ? '' : 'disabled'}}" bindtap="submitShare" disabled="{{!canSubmit}}">
+      发布共享
+    </button>
+  </view>
+</view>

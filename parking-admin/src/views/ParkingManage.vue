@@ -1,0 +1,397 @@
+<template>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="header-title">
+        <h2>停车场管理</h2>
+        <span class="subtitle">共 {{ total }} 个停车场</span>
+      </div>
+      <div class="header-actions">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索停车场名称"
+          class="search-input"
+          clearable
+          @keyup.enter="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon>
+          新增停车场
+        </el-button>
+      </div>
+    </div>
+
+    <el-card class="table-card" shadow="never">
+      <el-table
+        :data="parkingList"
+        v-loading="loading"
+        stripe
+        style="width: 100%"
+      >
+        <el-table-column type="index" width="50" />
+        <el-table-column label="停车场名称" min-width="180">
+          <template #default="{ row }">
+            <div class="parking-name">
+              <el-icon :size="18" color="#409EFF"><OfficeBuilding /></el-icon>
+              <span>{{ row.name }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="address" label="地址" min-width="250" show-overflow-tooltip />
+        <el-table-column label="车位情况" width="150">
+          <template #default="{ row }">
+            <div class="space-info">
+              <span class="used">{{ row.usedSpaces }}</span>
+              <span class="separator">/</span>
+              <span class="total">{{ row.totalSpaces }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="使用率" width="120">
+          <template #default="{ row }">
+            <el-progress
+              :percentage="row.usageRate"
+              :color="getUsageColor(row.usageRate)"
+              :stroke-width="6"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="收费标准" width="150">
+          <template #default="{ row }">
+            <span class="fee-text">¥{{ row.hourlyRate }}/小时</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 'open' ? 'success' : 'info'" size="small">
+              {{ row.status === 'open' ? '营业中' : '已关闭' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="handleEdit(row)">
+              <el-icon><Edit /></el-icon>
+              编辑
+            </el-button>
+            <el-button link type="danger" @click="handleDelete(row)">
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
+
+    <!-- 新增/编辑对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogType === 'add' ? '新增停车场' : '编辑停车场'"
+      width="600px"
+      destroy-on-close
+    >
+      <el-form
+        ref="formRef"
+        :model="formData"
+        :rules="formRules"
+        label-width="100px"
+      >
+        <el-form-item label="停车场名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入停车场名称" />
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="formData.address" placeholder="请输入地址" />
+        </el-form-item>
+        <el-form-item label="总车位数" prop="totalSpaces">
+          <el-input-number v-model="formData.totalSpaces" :min="1" :max="10000" />
+        </el-form-item>
+        <el-form-item label="收费标准" prop="hourlyRate">
+          <el-input-number v-model="formData.hourlyRate" :min="0" :precision="2" :step="0.5">
+            <template #append>元/小时</template>
+          </el-input-number>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="formData.status">
+            <el-radio label="open">营业中</el-radio>
+            <el-radio label="closed">已关闭</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+// 搜索和分页
+const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+const loading = ref(false)
+
+// 停车场列表
+const parkingList = ref([])
+
+// 对话框
+const dialogVisible = ref(false)
+const dialogType = ref('add')
+const formRef = ref(null)
+const formData = ref({
+  name: '',
+  address: '',
+  totalSpaces: 100,
+  hourlyRate: 5.00,
+  status: 'open'
+})
+
+const formRules = {
+  name: [{ required: true, message: '请输入停车场名称', trigger: 'blur' }],
+  address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
+  totalSpaces: [{ required: true, message: '请输入总车位数', trigger: 'blur' }],
+  hourlyRate: [{ required: true, message: '请输入收费标准', trigger: 'blur' }]
+}
+
+// 获取使用率颜色
+const getUsageColor = (rate) => {
+  if (rate >= 90) return '#F56C6C'
+  if (rate >= 70) return '#E6A23C'
+  return '#67C23A'
+}
+
+// 加载数据
+const loadData = async () => {
+  loading.value = true
+  // 模拟数据
+  setTimeout(() => {
+    parkingList.value = [
+      { id: 1, name: '万达广场停车场', address: '北京市朝阳区建国路88号', totalSpaces: 500, usedSpaces: 420, usageRate: 84, hourlyRate: 8.00, status: 'open' },
+      { id: 2, name: '国贸中心停车场', address: '北京市朝阳区建国门外大街1号', totalSpaces: 800, usedSpaces: 720, usageRate: 90, hourlyRate: 10.00, status: 'open' },
+      { id: 3, name: '三里屯太古里停车场', address: '北京市朝阳区三里屯路19号', totalSpaces: 300, usedSpaces: 280, usageRate: 93, hourlyRate: 12.00, status: 'open' },
+      { id: 4, name: '朝阳大悦城停车场', address: '北京市朝阳区朝阳北路101号', totalSpaces: 600, usedSpaces: 450, usageRate: 75, hourlyRate: 6.00, status: 'open' },
+      { id: 5, name: '望京SOHO停车场', address: '北京市朝阳区望京街9号', totalSpaces: 400, usedSpaces: 280, usageRate: 70, hourlyRate: 5.00, status: 'open' }
+    ]
+    total.value = 5
+    loading.value = false
+  }, 500)
+}
+
+// 搜索
+const handleSearch = () => {
+  currentPage.value = 1
+  loadData()
+}
+
+// 分页
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  loadData()
+}
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val
+  loadData()
+}
+
+// 新增
+const handleAdd = () => {
+  dialogType.value = 'add'
+  formData.value = {
+    name: '',
+    address: '',
+    totalSpaces: 100,
+    hourlyRate: 5.00,
+    status: 'open'
+  }
+  dialogVisible.value = true
+}
+
+// 编辑
+const handleEdit = (row) => {
+  dialogType.value = 'edit'
+  formData.value = { ...row }
+  dialogVisible.value = true
+}
+
+// 删除
+const handleDelete = (row) => {
+  ElMessageBox.confirm(
+    `确定要删除停车场 "${row.name}" 吗？`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
+    ElMessage.success('删除成功')
+    loadData()
+  })
+}
+
+// 提交表单
+const handleSubmit = async () => {
+  await formRef.value.validate()
+  ElMessage.success(dialogType.value === 'add' ? '新增成功' : '编辑成功')
+  dialogVisible.value = false
+  loadData()
+}
+
+onMounted(() => {
+  loadData()
+})
+</script>
+
+<style scoped lang="scss">
+.page-container {
+  padding: $spacing-lg;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.header-title {
+  h2 {
+    margin: 0 0 4px 0;
+    font-size: $font-size-xl;
+    color: $text-primary;
+  }
+
+  .subtitle {
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.search-input {
+  width: 240px;
+}
+
+.table-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+
+  :deep(.el-card__body) {
+    padding: 0;
+  }
+
+  :deep(.el-table) {
+    background: transparent;
+
+    th.el-table__cell {
+      background: rgba(255, 255, 255, 0.05);
+      color: $text-primary;
+      font-weight: 500;
+    }
+
+    td.el-table__cell {
+      background: transparent;
+      color: $text-secondary;
+    }
+
+    tr:hover > td.el-table__cell {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    &::before {
+      display: none;
+    }
+  }
+
+  :deep(.el-table--striped) {
+    .el-table__body tr.el-table__row--striped td.el-table__cell {
+      background: rgba(255, 255, 255, 0.02);
+    }
+  }
+}
+
+.parking-name {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: $text-primary;
+}
+
+.space-info {
+  .used {
+    color: $warning-color;
+    font-weight: 500;
+  }
+
+  .separator {
+    color: $text-muted;
+    margin: 0 4px;
+  }
+
+  .total {
+    color: $text-secondary;
+  }
+}
+
+.fee-text {
+  color: $success-color;
+  font-weight: 500;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: $spacing-md;
+  border-top: 1px solid $border-color;
+}
+
+:deep(.el-pagination) {
+  --el-pagination-button-color: $text-secondary;
+  --el-pagination-hover-color: $primary-color;
+
+  .el-pagination__total,
+  .el-pagination__jump {
+    color: $text-secondary;
+  }
+}
+
+:deep(.el-dialog) {
+  background: linear-gradient(135deg, #0d2137 0%, #0a1929 100%);
+  border: 1px solid $border-color;
+
+  .el-dialog__title {
+    color: $text-primary;
+  }
+
+  .el-dialog__body {
+    color: $text-secondary;
+  }
+}
+</style>

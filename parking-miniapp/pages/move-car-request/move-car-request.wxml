@@ -1,0 +1,75 @@
+<view class="container">
+  <!-- 车位信息 -->
+  <view class="space-card">
+    <text class="space-title">车位 {{spaceCode}}</text>
+    <text class="space-desc">{{parkingName}}</text>
+  </view>
+
+  <!-- 车辆信息 -->
+  <view class="vehicle-card">
+    <view class="vehicle-header">
+      <image class="vehicle-icon" src="/static/icons/car.png" mode="aspectFit"></image>
+      <text class="vehicle-plate">{{vehicle.plateNumber}}</text>
+    </view>
+    <view class="vehicle-info">
+      <text class="info-item">{{vehicle.brand}} {{vehicle.model}}</text>
+      <text class="info-item">{{vehicle.color}}</text>
+    </view>
+    <view class="privacy-notice">
+      <image src="/static/icons/shield.png" mode="aspectFit"></image>
+      <text>车主信息已脱敏处理，保护双方隐私</text>
+    </view>
+  </view>
+
+  <!-- 挪车原因 -->
+  <view class="section">
+    <view class="section-title">选择挪车原因</view>
+    <view class="reason-list">
+      <view 
+        class="reason-item {{selectedReason === index ? 'active' : ''}}"
+        wx:for="{{reasons}}"
+        wx:key="index"
+        bindtap="selectReason"
+        data-index="{{index}}"
+      >
+        <text class="reason-text">{{item}}</text>
+        <view class="check-icon" wx:if="{{selectedReason === index}}">
+          <image src="/static/icons/check.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 补充说明 -->
+  <view class="section">
+    <view class="section-title">补充说明（选填）</view>
+    <textarea 
+      class="remark-input" 
+      placeholder="如有其他情况，请在此补充说明..."
+      value="{{remark}}"
+      bindinput="onRemarkInput"
+      maxlength="100"
+    ></textarea>
+    <text class="remark-count">{{remark.length}}/100</text>
+  </view>
+
+  <!-- 联系方式 -->
+  <view class="section">
+    <view class="section-title">您的联系方式（选填）</view>
+    <input 
+      class="contact-input" 
+      type="number" 
+      placeholder="输入手机号，方便车主联系您"
+      value="{{contactPhone}}"
+      bindinput="onContactInput"
+      maxlength="11"
+    />
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="bottom-bar">
+    <button class="submit-btn {{canSubmit ? '' : 'disabled'}}" bindtap="submitRequest" disabled="{{!canSubmit}}">
+      发送挪车通知
+    </button>
+  </view>
+</view>

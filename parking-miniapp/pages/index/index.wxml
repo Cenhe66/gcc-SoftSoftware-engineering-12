@@ -1,0 +1,96 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input" bindtap="onSearch">
+      <image class="search-icon" src="/static/icons/搜索图标.png" mode="aspectFit"></image>
+      <text class="search-placeholder">搜索停车场名称或地址</text>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToReservation">
+      <view class="action-icon reservation">
+        <image src="/static/icons/reservation.png" mode="aspectFit"></image>
+      </view>
+      <text class="action-text">预约停车</text>
+    </view>
+    <view class="action-item" bindtap="goToShare">
+      <view class="action-icon share">
+        <image src="/static/icons/共享车位.png" mode="aspectFit"></image>
+      </view>
+      <text class="action-text">共享车位</text>
+    </view>
+    <view class="action-item" bindtap="goToMoveCar">
+      <view class="action-icon move-car">
+        <image src="/static/icons/扫码挪车.png" mode="aspectFit"></image>
+      </view>
+      <text class="action-text">扫码挪车</text>
+    </view>
+    <view class="action-item" bindtap="goToARFindCar">
+      <view class="action-icon ar">
+        <image src="/static/icons/寻车.png" mode="aspectFit"></image>
+      </view>
+      <text class="action-text">AR寻车</text>
+    </view>
+  </view>
+
+  <!-- 附近停车场 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">附近停车场</text>
+      <view class="location" bindtap="refreshLocation">
+        <image class="location-icon" src="/static/icons/定位图标.png" mode="aspectFit"></image>
+        <text class="location-text">{{locationText}}</text>
+      </view>
+    </view>
+
+    <view class="parking-list">
+      <view 
+        class="parking-card" 
+        wx:for="{{parkingList}}" 
+        wx:key="id"
+        bindtap="goToDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="parking-info">
+          <text class="parking-name">{{item.name}}</text>
+          <view class="parking-meta">
+            <text class="parking-address">{{item.address}}</text>
+            <text class="parking-distance" wx:if="{{item.distance}}">{{item.distance}}m</text>
+          </view>
+          <view class="parking-tags">
+            <text class="tag" wx:if="{{item.hasCharging}}">充电桩</text>
+            <text class="tag" wx:if="{{item.isIndoor}}">室内</text>
+            <text class="tag" wx:if="{{item.hasElevator}}">电梯</text>
+          </view>
+        </view>
+        <view class="parking-status">
+          <view class="space-count">
+            <text class="count-free">{{item.freeSpace}}</text>
+            <text class="count-total">/{{item.totalSpace}}</text>
+          </view>
+          <text class="status-text">空闲车位</text>
+          <view class="price-info">
+            <text class="price">¥{{item.pricePerHour}}</text>
+            <text class="price-unit">/小时</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && parkingList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && parkingList.length === 0}}">
+      <image src="/static/icons/空状态图标.png" mode="aspectFit"></image>
+      <text>暂无附近停车场</text>
+    </view>
+  </view>
+</view>

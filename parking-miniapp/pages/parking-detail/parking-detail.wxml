@@ -1,0 +1,123 @@
+<view class="container">
+  <!-- 停车场基本信息 -->
+  <view class="header-card">
+    <text class="parking-name">{{parkingInfo.name}}</text>
+    <view class="parking-address">
+      <image class="address-icon" src="/static/icons/location.png" mode="aspectFit"></image>
+      <text>{{parkingInfo.address}}</text>
+    </view>
+    <view class="parking-tags">
+      <text class="tag" wx:if="{{parkingInfo.hasCharging}}">充电桩</text>
+      <text class="tag" wx:if="{{parkingInfo.isIndoor}}">室内</text>
+      <text class="tag" wx:if="{{parkingInfo.hasElevator}}">电梯</text>
+      <text class="tag" wx:if="{{parkingInfo.isOpen24h}}">24小时</text>
+    </view>
+  </view>
+
+  <!-- 车位统计 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-value free">{{parkingInfo.freeSpace}}</text>
+      <text class="stat-label">空闲车位</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value total">{{parkingInfo.totalSpace}}</text>
+      <text class="stat-label">总车位</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value price">¥{{parkingInfo.pricePerHour}}</text>
+      <text class="stat-label">每小时</text>
+    </view>
+  </view>
+
+  <!-- 收费标准 -->
+  <view class="section">
+    <view class="section-title">收费标准</view>
+    <view class="price-detail">
+      <view class="price-item">
+        <text class="price-label">首小时</text>
+        <text class="price-value">¥{{parkingInfo.firstHourPrice || parkingInfo.pricePerHour}}</text>
+      </view>
+      <view class="price-item">
+        <text class="price-label">后续每小时</text>
+        <text class="price-value">¥{{parkingInfo.pricePerHour}}</text>
+      </view>
+      <view class="price-item" wx:if="{{parkingInfo.dailyCap}}">
+        <text class="price-label">每日封顶</text>
+        <text class="price-value">¥{{parkingInfo.dailyCap}}</text>
+      </view>
+      <view class="price-item" wx:if="{{parkingInfo.freeMinutes}}">
+        <text class="price-label">免费时长</text>
+        <text class="price-value">{{parkingInfo.freeMinutes}}分钟</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 营业时间 -->
+  <view class="section">
+    <view class="section-title">营业时间</view>
+    <view class="business-time">
+      <text wx:if="{{parkingInfo.isOpen24h}}">全天24小时营业</text>
+      <text wx:else>{{parkingInfo.openTime}} - {{parkingInfo.closeTime}}</text>
+    </view>
+  </view>
+
+  <!-- 车位分布 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">车位分布</text>
+      <view class="legend">
+        <view class="legend-item">
+          <view class="legend-dot free"></view>
+          <text>空闲</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-dot occupied"></view>
+          <text>占用</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-dot reserved"></view>
+          <text>预约</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="floor-tabs">
+      <view 
+        class="floor-tab {{currentFloor === index ? 'active' : ''}}"
+        wx:for="{{floors}}"
+        wx:key="index"
+        bindtap="switchFloor"
+        data-index="{{index}}"
+      >
+        {{item.name}}
+      </view>
+    </view>
+
+    <view class="space-grid">
+      <view 
+        class="space-item {{item.status === 0 ? 'free' : item.status === 1 ? 'occupied' : 'reserved'}}"
+        wx:for="{{currentSpaces}}"
+        wx:key="id"
+        bindtap="onSpaceClick"
+        data-space="{{item}}"
+      >
+        <text class="space-code">{{item.spaceCode}}</text>
+        <text class="space-type" wx:if="{{item.spaceType === 1}}">充</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="action-btn navigate" bindtap="navigateToParking">
+      <image src="/static/icons/navigate.png" mode="aspectFit"></image>
+      <text>导航</text>
+    </view>
+    <view class="action-btn reserve" bindtap="goToReservation">
+      <text>立即预约</text>
+    </view>
+  </view>
+</view>

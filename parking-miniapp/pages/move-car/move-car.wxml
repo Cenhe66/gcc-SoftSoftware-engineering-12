@@ -1,0 +1,84 @@
+<view class="container">
+  <!-- 页面说明 -->
+  <view class="page-header">
+    <view class="header-icon">
+      <image src="/static/icons/扫码挪车.png" mode="aspectFit"></image>
+    </view>
+    <text class="page-title">匿名挪车</text>
+    <text class="page-desc">扫描车位二维码，快速联系车主挪车，保护双方隐私</text>
+  </view>
+
+  <!-- 扫码入口 -->
+  <view class="scan-section">
+    <button class="scan-btn" bindtap="scanCode">
+      <image src="/static/icons/扫码挪车.png" mode="aspectFit"></image>
+      <text>扫码挪车</text>
+    </button>
+    <text class="scan-tip">扫描车位上的二维码即可联系车主</text>
+  </view>
+
+  <!-- 或者输入车位号 -->
+  <view class="divider">
+    <text>或</text>
+  </view>
+
+  <view class="input-section">
+    <view class="input-label">输入车位编号</view>
+    <view class="input-group">
+      <input 
+        class="space-input" 
+        type="text" 
+        placeholder="如：B2-015"
+        value="{{spaceCode}}"
+        bindinput="onSpaceCodeInput"
+        maxlength="10"
+      />
+      <button class="confirm-btn {{spaceCode ? '' : 'disabled'}}" bindtap="searchByCode" disabled="{{!spaceCode}}">
+        确认
+      </button>
+    </view>
+  </view>
+
+  <!-- 我的挪车记录 -->
+  <view class="section" wx:if="{{moveCarList.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">我的挪车记录</text>
+      <text class="view-all" bindtap="viewAllRecords">查看全部</text>
+    </view>
+    <view class="record-list">
+      <view class="record-item" wx:for="{{moveCarList}}" wx:key="id" bindtap="viewRecordDetail" data-id="{{item.id}}">
+        <view class="record-info">
+          <text class="record-title">{{item.parkingName}}</text>
+          <text class="record-desc">车位 {{item.spaceCode}} · {{item.createTime}}</text>
+        </view>
+        <view class="record-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="guide-section">
+    <view class="guide-title">使用说明</view>
+    <view class="guide-steps">
+      <view class="step">
+        <view class="step-num">1</view>
+        <text class="step-text">扫描车位二维码</text>
+      </view>
+      <view class="step-arrow"></view>
+      <view class="step">
+        <view class="step-num">2</view>
+        <text class="step-text">选择挪车原因</text>
+      </view>
+      <view class="step-arrow"></view>
+      <view class="step">
+        <view class="step-num">3</view>
+        <text class="step-text">匿名通知车主</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="footer-tip">
+    <text>温馨提示：请文明挪车，恶意骚扰将被封号处理</text>
+  </view>
+</view>

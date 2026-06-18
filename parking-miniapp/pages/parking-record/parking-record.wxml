@@ -1,0 +1,101 @@
+<view class="container">
+  <!-- 当前停车状态 -->
+  <view class="current-parking" wx:if="{{currentParking}}">
+    <view class="section-title">当前停车</view>
+    <view class="parking-card active">
+      <view class="card-header">
+        <text class="parking-name">{{currentParking.parkingName}}</text>
+        <text class="status-tag">停车中</text>
+      </view>
+      <view class="card-body">
+        <view class="info-row">
+          <text class="info-label">车位编号</text>
+          <text class="info-value">{{currentParking.spaceCode}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">入场时间</text>
+          <text class="info-value">{{currentParking.entryTime}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">停车时长</text>
+          <text class="info-value highlight">{{currentParking.duration}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">预计费用</text>
+          <text class="info-value price">¥{{currentParking.estimatedCost}}</text>
+        </view>
+      </view>
+      <view class="card-footer">
+        <button class="pay-btn" bindtap="goToPayment" data-record="{{currentParking}}">
+          立即缴费
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-section">
+    <view class="section-header">
+      <text class="section-title">历史记录</text>
+      <view class="filter-tabs">
+        <view 
+          class="filter-tab {{currentFilter === 'all' ? 'active' : ''}}"
+          bindtap="switchFilter"
+          data-filter="all"
+        >全部</view>
+        <view 
+          class="filter-tab {{currentFilter === 'month' ? 'active' : ''}}"
+          bindtap="switchFilter"
+          data-filter="month"
+        >本月</view>
+      </view>
+    </view>
+
+    <view class="record-list">
+      <view 
+        class="record-item"
+        wx:for="{{recordList}}"
+        wx:key="id"
+        bindtap="viewRecordDetail"
+        data-record="{{item}}"
+      >
+        <view class="record-header">
+          <text class="record-name">{{item.parkingName}}</text>
+          <text class="record-status {{item.status === 1 ? 'paid' : 'unpaid'}}">
+            {{item.status === 1 ? '已完成' : '未支付'}}
+          </text>
+        </view>
+        <view class="record-body">
+          <view class="time-info">
+            <view class="time-row">
+              <text class="time-label">入场</text>
+              <text class="time-value">{{item.entryTime}}</text>
+            </view>
+            <view class="time-row">
+              <text class="time-label">离场</text>
+              <text class="time-value">{{item.exitTime || '-'}}</text>
+            </view>
+          </view>
+          <view class="record-info">
+            <text class="duration">{{item.duration}}</text>
+            <text class="amount">¥{{item.amount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && recordList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && recordList.length === 0 && !currentParking}}">
+      <image src="/static/icons/空状态图标.png" mode="aspectFit"></image>
+      <text>暂无停车记录</text>
+    </view>
+  </view>
+</view>

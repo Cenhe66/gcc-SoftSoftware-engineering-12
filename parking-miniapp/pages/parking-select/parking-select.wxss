@@ -1,0 +1,224 @@
+.container {
+  padding: 16px;
+  background: #f7f8fa;
+  min-height: 100vh;
+}
+
+/* 搜索框 */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 24px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  opacity: 0.5;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 14px;
+  color: #323233;
+}
+
+.clear-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c8c9cc;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+.clear-icon {
+  font-size: 14px;
+  color: #fff;
+  line-height: 1;
+}
+
+.search-btn {
+  padding: 10px 20px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 24px;
+}
+
+/* 位置栏 */
+.location-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.location-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.location-text {
+  font-size: 14px;
+  color: #323233;
+}
+
+/* 停车场列表 */
+.parking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.parking-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.parking-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.parking-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.parking-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-right: 8px;
+}
+
+.parking-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 11px;
+  color: #1989fa;
+  background: rgba(25, 137, 250, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tag.charging {
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.parking-address {
+  font-size: 13px;
+  color: #969799;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.parking-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.space-text {
+  font-size: 13px;
+  color: #646566;
+}
+
+.price-info {
+  display: flex;
+  align-items: baseline;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ee0a24;
+}
+
+.unit {
+  font-size: 12px;
+  color: #969799;
+  margin-left: 2px;
+}
+
+.distance-info {
+  margin-left: 12px;
+  text-align: center;
+}
+
+.distance {
+  font-size: 13px;
+  color: #969799;
+}
+
+.select-btn {
+  margin-left: 12px;
+  padding: 8px 16px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 16px;
+}
+
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 32px;
+  color: #969799;
+  font-size: 14px;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 32px;
+}
+
+.empty-state image {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state text {
+  font-size: 14px;
+  color: #969799;
+}
+
+/* 没有更多 */
+.no-more {
+  text-align: center;
+  padding: 16px;
+  color: #969799;
+  font-size: 13px;
+}

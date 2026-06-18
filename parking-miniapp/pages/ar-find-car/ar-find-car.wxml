@@ -1,0 +1,72 @@
+<view class="container">
+  <!-- 相机预览 -->
+  <camera 
+    class="camera" 
+    device-position="back" 
+    flash="off"
+    binderror="onCameraError"
+  ></camera>
+
+  <!-- AR覆盖层 -->
+  <view class="ar-overlay">
+    <!-- 方向指引箭头 -->
+    <view class="direction-arrow" style="transform: rotate({{direction}}deg)">
+      <image src="/static/icons/arrow-up.png" mode="aspectFit"></image>
+    </view>
+
+    <!-- 距离显示 -->
+    <view class="distance-info">
+      <text class="distance-value">{{distance}}米</text>
+      <text class="distance-label">距离车位</text>
+    </view>
+
+    <!-- 车位标记 -->
+    <view class="space-marker" style="left: {{markerLeft}}%; top: {{markerTop}}%;">
+      <view class="marker-icon">
+        <image src="/static/icons/pin.png" mode="aspectFit"></image>
+      </view>
+      <view class="marker-label">{{spaceCode}}</view>
+    </view>
+  </view>
+
+  <!-- 顶部信息栏 -->
+  <view class="top-bar">
+    <view class="info-card">
+      <text class="parking-name">{{parkingName}}</text>
+      <text class="space-code">目标车位：{{spaceCode}}</text>
+    </view>
+    <view class="close-btn" bindtap="goBack">
+      <image src="/static/icons/close.png" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- 底部控制栏 -->
+  <view class="bottom-bar">
+    <view class="control-section">
+      <view class="floor-selector">
+        <view 
+          class="floor-item {{currentFloor === index ? 'active' : ''}}"
+          wx:for="{{floors}}"
+          wx:key="index"
+          bindtap="switchFloor"
+          data-index="{{index}}"
+        >
+          {{item}}
+        </view>
+      </view>
+      <view class="hint-text">
+        <image src="/static/icons/info.png" mode="aspectFit"></image>
+        <text>请跟随箭头方向行走</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 相机权限提示 -->
+  <view class="permission-tip" wx:if="{{!hasCameraAuth}}">
+    <view class="tip-content">
+      <image src="/static/icons/camera.png" mode="aspectFit"></image>
+      <text>需要相机权限才能使用AR寻车功能</text>
+      <button class="auth-btn" bindtap="requestCameraAuth">开启权限</button>
+    </view>
+  </view>
+</view>

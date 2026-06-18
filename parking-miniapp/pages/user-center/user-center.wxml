@@ -1,0 +1,113 @@
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <image class="user-avatar" src="{{userInfo.avatar || '/static/icons/默认头像.png'}}" mode="aspectFill"></image>
+      <view class="user-detail">
+        <text class="user-name">{{userInfo.nickName || '未登录'}}</text>
+        <text class="user-phone" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</text>
+      </view>
+    </view>
+    <view class="user-stats">
+      <view class="stat-item" bindtap="goToParkingRecord">
+        <text class="stat-num">{{stats.parkingCount}}</text>
+        <text class="stat-label">停车次数</text>
+      </view>
+      <view class="stat-item" bindtap="goToReservation">
+        <text class="stat-num">{{stats.reservationCount}}</text>
+        <text class="stat-label">预约次数</text>
+      </view>
+      <view class="stat-item" bindtap="goToShareRecord">
+        <text class="stat-num">{{stats.shareCount}}</text>
+        <text class="stat-label">共享次数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的钱包 -->
+  <view class="section">
+    <view class="section-title">我的钱包</view>
+    <view class="wallet-card" bindtap="goToShareBill">
+      <view class="wallet-item">
+        <text class="wallet-label">共享收益</text>
+        <text class="wallet-value">¥{{stats.totalEarnings}}</text>
+      </view>
+      <view class="wallet-arrow">
+        <image src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="section">
+    <view class="section-title">我的服务</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="goToParkingRecord">
+        <view class="menu-icon">
+          <image src="/static/icons/停车记录.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">停车记录</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+      <view class="menu-item" bindtap="goToReservation">
+        <view class="menu-icon">
+          <image src="/static/icons/我的预约.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">我的预约</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+      <view class="menu-item" bindtap="goToShareSpace">
+        <view class="menu-icon">
+          <image src="/static/icons/共享车位.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">共享车位</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+      <view class="menu-item" bindtap="goToHealthCheck">
+        <view class="menu-icon">
+          <image src="/static/icons/车辆检查.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">健康检测</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+      <view class="menu-item" bindtap="goToVisitorAuth">
+        <view class="menu-icon">
+          <image src="/static/icons/访客授权.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">访客授权</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设置 -->
+  <view class="section">
+    <view class="section-title">设置</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="contactCustomerService">
+        <view class="menu-icon">
+          <image src="/static/icons/联系客服.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">联系客服</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+      <view class="menu-item" bindtap="showAbout">
+        <view class="menu-icon">
+          <image src="/static/icons/关于我们.png" mode="aspectFit"></image>
+        </view>
+        <text class="menu-text">关于我们</text>
+        <image class="menu-arrow" src="/static/icons/右箭头图标.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section" wx:if="{{isLogin}}">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+
+  <!-- 未登录状态 -->
+  <view class="login-section" wx:if="{{!isLogin}}">
+    <button class="login-btn" bindtap="goToLogin">立即登录</button>
+  </view>
+</view>

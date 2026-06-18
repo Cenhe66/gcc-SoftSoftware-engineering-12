@@ -1,0 +1,208 @@
+.container {
+  padding: 16px;
+  padding-bottom: 100px;
+  background: #f7f8fa;
+  min-height: 100vh;
+}
+
+/* 车位卡片 */
+.space-card {
+  background: linear-gradient(135deg, #ff976a 0%, #ffba8a 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  color: #fff;
+  text-align: center;
+}
+
+.space-title {
+  font-size: 24px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.space-desc {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* 车辆卡片 */
+.vehicle-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.vehicle-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.vehicle-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+}
+
+.vehicle-plate {
+  font-size: 20px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.vehicle-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  font-size: 14px;
+  color: #969799;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(25, 137, 250, 0.1);
+  border-radius: 8px;
+}
+
+.privacy-notice image {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.privacy-notice text {
+  font-size: 12px;
+  color: #1989fa;
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* 原因列表 */
+.reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reason-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.reason-item.active {
+  background: rgba(25, 137, 250, 0.1);
+  border-color: #1989fa;
+}
+
+.reason-text {
+  font-size: 14px;
+  color: #323233;
+}
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.check-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 补充说明 */
+.remark-input {
+  width: 100%;
+  height: 100px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  color: #323233;
+  box-sizing: border-box;
+}
+
+.remark-input::placeholder {
+  color: #c8c9cc;
+}
+
+.remark-count {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: #969799;
+  margin-top: 8px;
+}
+
+/* 联系方式 */
+.contact-input {
+  width: 100%;
+  height: 48px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #323233;
+  box-sizing: border-box;
+}
+
+.contact-input::placeholder {
+  color: #c8c9cc;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  background: #1989fa;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn.disabled {
+  background: #c8c9cc;
+}

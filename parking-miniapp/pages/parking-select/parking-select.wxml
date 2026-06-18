@@ -1,0 +1,64 @@
+<view class="container">
+  <!-- 搜索框（仅在搜索模式显示） -->
+  <view class="search-box" wx:if="{{isSearchMode}}">
+    <view class="search-input-wrapper">
+      <image class="search-icon" src="/static/icons/搜索图标.png" mode="aspectFit"></image>
+      <input class="search-input" type="text" placeholder="搜索停车场名称或地址" value="{{searchKeyword}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="doSearch"/>
+      <view class="clear-btn" wx:if="{{searchKeyword}}" bindtap="clearSearch">
+        <text class="clear-icon">×</text>
+      </view>
+    </view>
+    <view class="search-btn" bindtap="doSearch">搜索</view>
+  </view>
+
+  <!-- 位置信息 -->
+  <view class="location-bar" wx:if="{{!isSearchMode}}">
+    <image class="location-icon" src="/static/icons/location.png" mode="aspectFit"></image>
+    <text class="location-text">{{locationText}}</text>
+  </view>
+
+  <!-- 停车场列表 -->
+  <view class="parking-list">
+    <view class="parking-item" wx:for="{{parkingList}}" wx:key="id" bindtap="selectParking" data-id="{{item.id}}">
+      <view class="parking-info">
+        <view class="parking-header">
+          <text class="parking-name">{{item.name}}</text>
+          <view class="parking-tags">
+            <text class="tag" wx:if="{{item.isIndoor}}">室内</text>
+            <text class="tag charging" wx:if="{{item.hasCharging}}">充电桩</text>
+          </view>
+        </view>
+        <text class="parking-address">{{item.address}}</text>
+        <view class="parking-footer">
+          <view class="space-info">
+            <text class="space-text">空余 {{item.freeSpace}}/{{item.totalSpace}} 个车位</text>
+          </view>
+          <view class="price-info">
+            <text class="price">¥{{item.pricePerHour}}</text>
+            <text class="unit">/小时</text>
+          </view>
+        </view>
+      </view>
+      <view class="distance-info" wx:if="{{item.distance}}">
+        <text class="distance">{{item.distanceText}}</text>
+      </view>
+      <view class="select-btn">选择</view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && parkingList.length === 0}}">
+    <image src="/static/icons/空状态图标.png" mode="aspectFit"></image>
+    <text>暂无停车场数据</text>
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:if="{{!hasMore && parkingList.length > 0}}">
+    <text>没有更多了</text>
+  </view>
+</view>

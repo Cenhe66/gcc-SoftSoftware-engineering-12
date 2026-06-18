@@ -1,0 +1,120 @@
+<view class="container">
+  <!-- 停车场信息 -->
+  <view class="parking-card">
+    <text class="parking-name">{{parkingInfo.name}}</text>
+    <view class="parking-address">
+      <image class="address-icon" src="/static/icons/location.png" mode="aspectFit"></image>
+      <text>{{parkingInfo.address}}</text>
+    </view>
+    <view class="parking-price">
+      <text class="price-label">收费标准</text>
+      <text class="price-value">¥{{parkingInfo.pricePerHour}}/小时</text>
+    </view>
+  </view>
+
+  <!-- 预约时间选择 -->
+  <view class="section">
+    <view class="section-title">选择预约时间</view>
+    
+    <!-- 日期选择 -->
+    <view class="form-item">
+      <text class="form-label">预约日期</text>
+      <picker mode="date" value="{{selectedDate}}" start="{{minDate}}" end="{{maxDate}}" bindchange="onDateChange">
+        <view class="picker-value">
+          <text>{{selectedDate}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 开始时间 -->
+    <view class="form-item">
+      <text class="form-label">开始时间</text>
+      <picker mode="time" value="{{startTime}}" start="06:00" end="23:00" bindchange="onStartTimeChange">
+        <view class="picker-value">
+          <text>{{startTime}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 结束时间 -->
+    <view class="form-item">
+      <text class="form-label">结束时间</text>
+      <picker mode="time" value="{{endTime}}" start="{{startTime}}" end="23:59" bindchange="onEndTimeChange">
+        <view class="picker-value">
+          <text>{{endTime}}</text>
+          <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 预约时长 -->
+    <view class="duration-info" wx:if="{{duration > 0}}">
+      <text class="duration-label">预约时长</text>
+      <text class="duration-value">{{duration}}小时</text>
+    </view>
+  </view>
+
+  <!-- 车位选择 -->
+  <view class="section" wx:if="{{spaceId}}">
+    <view class="section-title">已选车位</view>
+    <view class="selected-space">
+      <text class="space-code">{{spaceCode}}</text>
+      <text class="space-type" wx:if="{{spaceType === 1}}">充电车位</text>
+    </view>
+  </view>
+
+  <!-- 车辆信息 -->
+  <view class="section">
+    <view class="section-title">车辆信息</view>
+    <view class="form-item">
+      <text class="form-label">车牌号码</text>
+      <input class="form-input" type="text" placeholder="请输入车牌号" value="{{plateNumber}}" bindinput="onPlateNumberInput" maxlength="10"/>
+    </view>
+    <view class="form-item">
+      <text class="form-label">联系电话</text>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhoneInput" maxlength="11"/>
+    </view>
+  </view>
+
+  <!-- 费用预估 -->
+  <view class="section">
+    <view class="section-title">费用预估</view>
+    <view class="cost-detail">
+      <view class="cost-item">
+        <text class="cost-label">预约时长</text>
+        <text class="cost-value">{{duration}}小时</text>
+      </view>
+      <view class="cost-item">
+        <text class="cost-label">单价</text>
+        <text class="cost-value">¥{{parkingInfo.pricePerHour}}/小时</text>
+      </view>
+      <view class="cost-item">
+        <text class="cost-label">预约费用</text>
+        <text class="cost-value">¥{{estimatedCost}}</text>
+      </view>
+      <view class="cost-item total">
+        <text class="cost-label">合计</text>
+        <text class="cost-value price">¥{{estimatedCost}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 预约须知 -->
+  <view class="notice">
+    <text class="notice-title">预约须知：</text>
+    <text class="notice-content">1. 预约成功后请在15分钟内入场，超时将自动取消预约；\n2. 预约费用将在离场时与实际停车费用合并结算；\n3. 如需取消预约，请提前30分钟操作。</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="price-info">
+      <text class="total-label">合计：</text>
+      <text class="total-price">¥{{estimatedCost}}</text>
+    </view>
+    <button class="submit-btn {{canSubmit ? '' : 'disabled'}}" bindtap="submitReservation" disabled="{{!canSubmit}}">
+      确认预约
+    </button>
+  </view>
+</view>

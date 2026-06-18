@@ -1,0 +1,55 @@
+<view class="container">
+  <!-- 总体状态 -->
+  <view class="result-header {{result.overallStatus === 0 ? 'normal' : 'abnormal'}}">
+    <view class="status-icon">
+      <image src="/static/icons/{{result.overallStatus === 0 ? 'check' : '空状态图标'}}.png" mode="aspectFit"></image>
+    </view>
+    <text class="status-title">{{result.overallStatus === 0 ? '检测正常' : '发现异常'}}</text>
+    <text class="status-desc">{{result.overallStatus === 0 ? '您的车辆状态良好，请继续保持' : '检测到部分异常，建议及时处理'}}</text>
+    <text class="check-time">检测时间：{{checkTime}}</text>
+  </view>
+
+  <!-- 车辆信息 -->
+  <view class="vehicle-card">
+    <text class="vehicle-plate">{{result.plateNumber}}</text>
+    <text class="vehicle-label">检测车辆</text>
+  </view>
+
+  <!-- 检测详情 -->
+  <view class="section">
+    <view class="section-title">检测详情</view>
+    <view class="detail-list">
+      <view class="detail-item {{item.status === 1 ? 'abnormal' : ''}}" wx:for="{{result.items}}" wx:key="name">
+        <view class="item-left">
+          <view class="item-icon {{item.status === 0 ? 'normal' : 'abnormal'}}">
+            <image src="/static/icons/{{item.status === 0 ? 'check' : '空状态图标'}}.png" mode="aspectFit"></image>
+          </view>
+          <view class="item-info">
+            <text class="item-name">{{item.name}}</text>
+            <text class="item-value">{{item.value}}</text>
+          </view>
+        </view>
+        <view class="item-status {{item.status === 0 ? 'normal' : 'abnormal'}}">
+          {{item.status === 0 ? '正常' : '异常'}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 建议 -->
+  <view class="section" wx:if="{{suggestions.length > 0}}">
+    <view class="section-title">处理建议</view>
+    <view class="suggestion-list">
+      <view class="suggestion-item" wx:for="{{suggestions}}" wx:key="index">
+        <view class="suggestion-dot"></view>
+        <text class="suggestion-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-bar">
+    <button class="btn secondary" bindtap="viewHistory">历史记录</button>
+    <button class="btn primary" bindtap="checkAgain">重新检测</button>
+  </view>
+</view>

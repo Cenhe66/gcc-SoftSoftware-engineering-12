@@ -1,0 +1,333 @@
+.container {
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+/* 收益卡片 */
+.earnings-card {
+  background: linear-gradient(135deg, #ff976a 0%, #ffba8a 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  color: #fff;
+  text-align: center;
+}
+
+.earnings-title {
+  font-size: 14px;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.earnings-amount {
+  font-size: 48px;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.earnings-detail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 32px;
+}
+
+.detail-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.detail-label {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.detail-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #969799;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  opacity: 0.3;
+}
+
+/* 账单列表 */
+.bill-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.bill-item:last-child {
+  border-bottom: none;
+}
+
+.bill-left {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.bill-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.bill-icon.income {
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.bill-icon.expense {
+  background: rgba(238, 10, 36, 0.1);
+}
+
+.bill-icon image {
+  width: 20px;
+  height: 20px;
+}
+
+.bill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bill-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.bill-desc {
+  font-size: 12px;
+  color: #969799;
+}
+
+.bill-time {
+  font-size: 11px;
+  color: #c8c9cc;
+}
+
+.bill-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.bill-amount {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.bill-amount.income {
+  color: #07c160;
+}
+
+.bill-amount.expense {
+  color: #ee0a24;
+}
+
+.bill-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.bill-status.completed {
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.bill-status.pending {
+  color: #ff976a;
+  background: rgba(255, 151, 106, 0.1);
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 16px;
+}
+
+.load-more text {
+  font-size: 12px;
+  color: #969799;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+}
+
+.empty-state image {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state text {
+  font-size: 14px;
+  color: #969799;
+}
+
+/* 月份选择弹窗 */
+.month-picker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.picker-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.picker-content {
+  position: relative;
+  width: 100%;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.picker-title {
+  font-size: 17px;
+  font-weight: bold;
+  color: #323233;
+}
+
+.close-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+.close-icon {
+  font-size: 20px;
+  color: #969799;
+  line-height: 1;
+}
+
+.picker-body {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.month-list {
+  padding: 8px 0;
+}
+
+.month-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.month-item:last-child {
+  border-bottom: none;
+}
+
+.month-text {
+  font-size: 15px;
+  color: #323233;
+}
+
+.month-text.active {
+  color: #1989fa;
+  font-weight: 500;
+}
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.check-icon image {
+  width: 100%;
+  height: 100%;
+}

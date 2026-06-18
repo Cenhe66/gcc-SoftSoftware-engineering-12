@@ -1,0 +1,79 @@
+<view class="container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-icon">
+      <image src="/static/icons/health-large.png" mode="aspectFit"></image>
+    </view>
+    <text class="page-title">车辆健康检测</text>
+    <text class="page-desc">智能检测车窗、车灯、胎压等状态，保障行车安全</text>
+  </view>
+
+  <!-- 检测项目 -->
+  <view class="section">
+    <view class="section-title">检测项目</view>
+    <view class="check-items">
+      <view class="check-item">
+        <view class="item-icon window">
+          <image src="/static/icons/window.png" mode="aspectFit"></image>
+        </view>
+        <text class="item-name">车窗状态</text>
+        <text class="item-status">检测是否关闭</text>
+      </view>
+      <view class="check-item">
+        <view class="item-icon light">
+          <image src="/static/icons/light.png" mode="aspectFit"></image>
+        </view>
+        <text class="item-name">车灯状态</text>
+        <text class="item-status">检测是否关闭</text>
+      </view>
+      <view class="check-item">
+        <view class="item-icon tire">
+          <image src="/static/icons/tire.png" mode="aspectFit"></image>
+        </view>
+        <text class="item-name">胎压监测</text>
+        <text class="item-status">检测胎压是否正常</text>
+      </view>
+      <view class="check-item">
+        <view class="item-icon battery">
+          <image src="/static/icons/battery.png" mode="aspectFit"></image>
+        </view>
+        <text class="item-name">电瓶状态</text>
+        <text class="item-status">检测电量是否充足</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选择车辆 -->
+  <view class="section">
+    <view class="section-title">选择车辆</view>
+    <view class="vehicle-list">
+      <view 
+        class="vehicle-item {{selectedVehicle === index ? 'active' : ''}}"
+        wx:for="{{vehicles}}"
+        wx:key="index"
+        bindtap="selectVehicle"
+        data-index="{{index}}"
+      >
+        <view class="vehicle-info">
+          <text class="vehicle-plate">{{item.plateNumber}}</text>
+          <text class="vehicle-model">{{item.brand}} {{item.model}}</text>
+        </view>
+        <view class="check-icon" wx:if="{{selectedVehicle === index}}">
+          <image src="/static/icons/check.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+    <view class="add-vehicle" bindtap="addVehicle">
+      <image src="/static/icons/add.png" mode="aspectFit"></image>
+      <text>添加车辆</text>
+    </view>
+  </view>
+
+  <!-- 检测按钮 -->
+  <view class="bottom-bar">
+    <button class="check-btn {{canCheck ? '' : 'disabled'}}" bindtap="startCheck" disabled="{{!canCheck}}">
+      <image src="/static/icons/scan-white.png" mode="aspectFit"></image>
+      <text>开始检测</text>
+    </button>
+  </view>
+</view>
