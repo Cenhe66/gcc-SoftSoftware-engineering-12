@@ -18,12 +18,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ParkingWebSocketHandler extends TextWebSocketHandler {
 
     private static final Map<String, WebSocketSession> SESSION_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, String> USER_SESSION_MAP = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         String sessionId = session.getId();
         SESSION_MAP.put(sessionId, session);
         log.info("WebSocket连接建立: {}, 当前连接数: {}", sessionId, SESSION_MAP.size());
+    }
+
+    public void bindUserId(String sessionId, String userId) {
+        if (SESSION_MAP.containsKey(sessionId)) {
+            USER_SESSION_MAP.put(userId, sessionId);
+            log.info("WebSocket用户绑定: userId={}, sessionId={}", userId, sessionId);
+        }
     }
 
     @Override
@@ -73,6 +81,15 @@ public class ParkingWebSocketHandler extends TextWebSocketHandler {
         } catch (IOException e) {
             log.error("WebSocket单发失败: {}", e.getMessage());
         }
+    }
+
+    public void sendToUser(String userId, Object data) {
+        String sessionId = USER_SESSION_MAP.get(userId);
+        if (sessionId == null) {
+            log.warn("WebSocket用户不在线: userId={}", userId);
+            return;
+        }
+        sendToSession(sessionId, data);
     }
 
     public int getOnlineCount() {

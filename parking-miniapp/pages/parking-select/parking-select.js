@@ -46,6 +46,30 @@ Page({
 
   // 获取当前位置
   getLocation() {
+    // 检查隐私协议是否已授权
+    const app = getApp()
+    if (!app.globalData.privacyAuthorized) {
+      // 使用隐私协议弹窗
+      if (wx.onNeedPrivacyAuthorization) {
+        wx.onNeedPrivacyAuthorization((resolve, event) => {
+          console.log('需要隐私授权:', event)
+          resolve({
+            event: 'agree',
+            disclosure: '用户同意隐私协议'
+          })
+          app.globalData.privacyAuthorized = true
+          this.doGetLocation()
+        })
+      }
+      // 尝试直接获取位置
+      this.doGetLocation()
+    } else {
+      this.doGetLocation()
+    }
+  },
+
+  // 实际获取位置的方法
+  doGetLocation() {
     wx.getLocation({
       type: 'gcj02',
       success: (res) => {
@@ -56,7 +80,8 @@ Page({
         })
         this.loadParkingList()
       },
-      fail: () => {
+      fail: (err) => {
+        console.log('获取位置失败:', err)
         this.setData({
           locationText: '定位失败'
         })

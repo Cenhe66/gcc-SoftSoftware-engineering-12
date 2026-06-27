@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.parking.mapper.ParkingRecordMapper">
+
+    <select id="selectVOPage" resultType="com.parking.vo.ParkingRecordVO">
+        SELECT pr.*,
+               pl.name AS parking_name,
+               pl.address AS parking_address,
+               pl.hourly_rate,
+               ps.space_no AS space_code,
+               ps.floor
+        FROM parking_record pr
+                 LEFT JOIN parking_lot pl ON pr.lot_id = pl.id
+                 LEFT JOIN parking_space ps ON pr.space_id = ps.id
+        WHERE pr.deleted = 0
+        <if test="plateNumber != null and plateNumber != ''">
+            AND pr.plate_number LIKE CONCAT('%', #{plateNumber}, '%')
+        </if>
+        <if test="recordStatus != null">
+            AND pr.record_status = #{recordStatus}
+        </if>
+        <if test="entryStart != null and entryStart != ''">
+            AND pr.entry_time &gt;= #{entryStart}
+        </if>
+        <if test="entryEnd != null and entryEnd != ''">
+            AND pr.entry_time &lt;= #{entryEnd}
+        </if>
+        ORDER BY pr.entry_time DESC
+    </select>
+
+</mapper>

@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/health-check")
+@RequestMapping("/api/health-check")
 public class HealthCheckLogController {
 
     @Autowired

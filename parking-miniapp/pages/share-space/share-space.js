@@ -1,8 +1,10 @@
-const { post } = require('../../utils/request')
+const { get, post } = require('../../utils/request')
 const { showToast, showLoading, hideLoading, formatDate } = require('../../utils/util')
 
 Page({
   data: {
+    mySpaces: [],
+    selectedSpace: {},
     selectedParking: {},
     spaceCode: '',
     spaceType: 0,
@@ -40,16 +42,64 @@ Page({
     })
 
     this.calculateEarnings()
+    this.loadMySpaces()
   },
 
-  // 选择停车场
+  // 加载我的车位
+  loadMySpaces() {
+    get('/api/parking-space/my')
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          // 获取停车场名称映射
+          get('/api/parking-lot/list').then(lotRes => {
+            if (lotRes.code === 200 && lotRes.data) {
+              const lotMap = {}
+              lotRes.data.forEach(lot => { lotMap[lot.id] = lot.name })
+              const spaces = res.data.map(s => {
+                const isFree = s.status === 0 && s.isShared !== 1
+                const isShared = s.isShared === 1
+                return {
+                  ...s,
+                  displayName: `${lotMap[s.lotId] || '未知停车场'} - ${s.spaceNo || s.spaceCode}`,
+                  disabled: !isFree && !isShared,
+                  statusText: isShared ? '共享中' : (isFree ? '空闲' : '占用'),
+                  statusClass: isShared ? 'status-shared' : (isFree ? 'status-free' : 'status-occupied')
+                }
+              })
+              this.setData({ mySpaces: spaces })
+            }
+          })
+        }
+      })
+      .catch(err => {
+        console.error('加载我的车位失败:', err)
+      })
+  },
+
+  // 选择我的车位
+  selectMySpace(e) {
+    const index = e.currentTarget.dataset.index
+    const space = this.data.mySpaces[index]
+    if (space.disabled) {
+      showToast('该车位当前不可共享')
+      return
+    }
+    this.setData({
+      selectedSpace: space,
+      selectedParking: { id: space.lotId, name: space.parkingName },
+      spaceCode: space.spaceCode
+    })
+    this.checkCanSubmit()
+  },
+
+  // 选择停车场（保留兼容，但不再主要使用）
   selectParking() {
     wx.navigateTo({
       url: '/pages/parking-select/parking-select'
     })
   },
 
-  // 车位编号输入
+  // 车位编号输入（保留兼容，但不再主要使用）
   onSpaceCodeInput(e) {
     this.setData({
       spaceCode: e.detail.value.toUpperCase()
@@ -164,8 +214,8 @@ Page({
 
   // 检查是否可以提交
   checkCanSubmit() {
-    const { selectedParking, spaceCode, pricePerHour } = this.data
-    const canSubmit = selectedParking.id && spaceCode.length >= 3 && parseFloat(pricePerHour) > 0
+    const { selectedSpace, pricePerHour } = this.data
+    const canSubmit = selectedSpace.id && parseFloat(pricePerHour) > 0
     this.setData({ canSubmit })
   },
 
@@ -173,22 +223,29 @@ Page({
   submitShare() {
     if (!this.data.canSubmit) return
 
-    const { selectedParking, spaceCode, spaceType, timeMode, startDate, endDate, 
+    const { selectedSpace, spaceType, timeMode, startDate, endDate,
             startTime, endTime, weekdays, pricePerHour } = this.data
+
+    const userInfo = wx.getStorageSync('userInfo')
 
     showLoading('发布中...')
 
+    // 组合为 LocalDateTime 格式（YYYY-MM-DDTHH:mm:ss）
+    const startDateTime = `${startDate}T${startTime}:00`
+    const endDateTime = `${endDate}T${endTime}:00`
+
     const shareData = {
-      parkingId: selectedParking.id,
-      spaceCode: spaceCode,
-      spaceType: spaceType,
+      lotId: selectedSpace.lotId,
+      spaceNo: selectedSpace.spaceNo || selectedSpace.spaceCode,
+      shareType: spaceType,
+      userId: userInfo?.id || 1,
       timeMode: timeMode,
       startDate: timeMode === 'fixed' ? startDate : null,
       endDate: timeMode === 'fixed' ? endDate : null,
       weekdays: timeMode === 'daily' ? weekdays.map((w, i) => w.selected ? i : -1).filter(i => i >= 0) : null,
-      startTime: startTime,
-      endTime: endTime,
-      pricePerHour: parseFloat(pricePerHour)
+      startTime: startDateTime,
+      endTime: endDateTime,
+      hourlyPrice: parseFloat(pricePerHour)
     }
 
     post('/api/share-record/publish', shareData)
@@ -208,12 +265,7 @@ Page({
       .catch(err => {
         hideLoading()
         console.error('发布失败:', err)
-        showToast('发布成功', 'success')
-        setTimeout(() => {
-          wx.navigateTo({
-            url: '/pages/share-record/share-record'
-          })
-        }, 1500)
+        showToast(err.message || '发布失败')
       })
   }
 })

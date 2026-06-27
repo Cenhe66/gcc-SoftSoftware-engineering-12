@@ -47,14 +47,16 @@ Page({
           })
           this.loadParkingSpaces(id)
         } else {
-          // 使用模拟数据
-          this.setMockData()
+          hideLoading()
+          showToast('加载失败')
+          wx.navigateBack()
         }
       })
       .catch(err => {
         hideLoading()
         console.error('加载失败:', err)
-        this.setMockData()
+        showToast('加载失败')
+        wx.navigateBack()
       })
   },
 
@@ -65,24 +67,35 @@ Page({
         if (res.code === 200 && res.data) {
           this.processSpaces(res.data)
         } else {
-          this.setMockSpaces()
+          this.setData({
+            floors: [],
+            currentSpaces: []
+          })
         }
       })
-      .catch(() => {
-        this.setMockSpaces()
+      .catch(err => {
+        console.error('加载车位失败:', err)
+        this.setData({
+          floors: [],
+          currentSpaces: []
+        })
       })
   },
 
   // 处理车位数据
   processSpaces(spaces) {
-    // 按楼层分组
+    // 按楼层分组，同时映射字段名
     const floorMap = {}
     spaces.forEach(space => {
       const floor = space.floor || 'B1'
       if (!floorMap[floor]) {
         floorMap[floor] = []
       }
-      floorMap[floor].push(space)
+      // 映射字段名：后端 spaceNo -> 前端 spaceCode
+      floorMap[floor].push({
+        ...space,
+        spaceCode: space.spaceNo || space.spaceCode
+      })
     })
 
     const floors = Object.keys(floorMap).map(name => ({
@@ -108,7 +121,18 @@ Page({
   // 点击车位
   onSpaceClick(e) {
     const space = e.currentTarget.dataset.space
-    if (space.status === 0) {
+    if (space.isShared === 1) {
+      const price = space.shareHourlyPrice || '未知'
+      wx.showModal({
+        title: '共享车位',
+        content: `车位 ${space.spaceCode} 为业主共享车位，单价 ¥${price}/小时，是否预约？`,
+        success: (res) => {
+          if (res.confirm) {
+            this.goToReservation(space.id)
+          }
+        }
+      })
+    } else if (space.status === 0) {
       // 空闲车位，可以预约
       wx.showModal({
         title: '预约车位',

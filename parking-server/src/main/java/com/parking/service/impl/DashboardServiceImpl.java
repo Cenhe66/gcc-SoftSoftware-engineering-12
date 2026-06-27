@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class DashboardServiceImpl implements DashboardService {
     private PaymentOrderMapper paymentOrderMapper;
 
     @Override
-    public DashboardVO getDashboardData() {
+    public DashboardVO getDashboardData(String range) {
         DashboardVO vo = new DashboardVO();
         List<ParkingLot> lots = parkingLotMapper.selectList(new QueryWrapper<>());
         vo.setTotalLots(lots.size());
@@ -91,9 +92,15 @@ public class DashboardServiceImpl implements DashboardService {
                         .eq("status", 1)
                         .eq("deleted", 0));
         vo.setActiveShares(activeShares.size());
-        vo.setHourlyFlow(buildHourlyFlow(todayRecords));
-        vo.setLotStatusList(buildLotStatusList(lots, spaces));
+        if ("week".equals(range)) {
+            vo.setHourlyFlow(buildWeeklyFlow());
+        } else {
+            vo.setHourlyFlow(buildHourlyFlow(todayRecords));
+        }
+        vo.setLotStatusList(buildLotStatusList(lots));
         vo.setRecentRecords(buildRecentRecords());
+        vo.setRevenueTrend(buildRevenueTrend());
+        buildLotHourlyHeatmap(vo, todayRecords, lots);
         return vo;
     }
 
@@ -119,20 +126,53 @@ public class DashboardServiceImpl implements DashboardService {
         return list;
     }
 
-    private List<Map<String, Object>> buildLotStatusList(List<ParkingLot> lots, List<ParkingSpace> spaces) {
+    private List<Map<String, Object>> buildWeeklyFlow() {
+        LocalDate today = LocalDate.now();
+        LocalDate monday = today.minusDays(today.getDayOfWeek().getValue() - 1);
+        LocalDateTime startOfWeek = monday.atStartOfDay();
+        LocalDateTime endOfWeek = today.plusDays(1).atStartOfDay();
+        List<ParkingRecord> weekRecords = parkingRecordMapper.selectList(
+                new QueryWrapper<ParkingRecord>()
+                        .ge("entry_time", startOfWeek)
+                        .lt("entry_time", endOfWeek)
+                        .eq("deleted", 0));
+        int[] dailyEntries = new int[7];
+        int[] dailyExits = new int[7];
+        String[] weekDays = {"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+        for (ParkingRecord r : weekRecords) {
+            if (r.getEntryTime() != null) {
+                int dayIndex = r.getEntryTime().getDayOfWeek().getValue() - 1;
+                dailyEntries[dayIndex]++;
+            }
+            if (r.getExitTime() != null) {
+                int dayIndex = r.getExitTime().getDayOfWeek().getValue() - 1;
+                dailyExits[dayIndex]++;
+            }
+        }
         List<Map<String, Object>> list = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("hour", weekDays[i]);
+            map.put("entries", dailyEntries[i]);
+            map.put("exits", dailyExits[i]);
+            list.add(map);
+        }
+        return list;
+    }
+
+    private List<Map<String, Object>> buildLotStatusList(List<ParkingLot> lots) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String, Object>> stats = parkingSpaceMapper.selectSpaceStatsGroupByLot();
+        Map<Long, Map<String, Object>> statsMap = new HashMap<>();
+        for (Map<String, Object> stat : stats) {
+            Long lotId = ((Number) stat.get("lotId")).longValue();
+            statsMap.put(lotId, stat);
+        }
         for (ParkingLot lot : lots) {
             Map<String, Object> map = new HashMap<>();
-            int total = 0;
-            int occ = 0;
-            for (ParkingSpace s : spaces) {
-                if (s.getLotId().equals(lot.getId())) {
-                    total++;
-                    if (s.getStatus() != null && s.getStatus() == 1) {
-                        occ++;
-                    }
-                }
-            }
+            Map<String, Object> stat = statsMap.get(lot.getId());
+            int total = stat != null ? ((Number) stat.get("total")).intValue() : 0;
+            int occ = stat != null ? ((Number) stat.get("occupied")).intValue() : 0;
             map.put("lotId", lot.getId());
             map.put("lotName", lot.getName());
             map.put("totalSpaces", total);
@@ -160,5 +200,77 @@ public class DashboardServiceImpl implements DashboardService {
             list.add(map);
         }
         return list;
+    }
+
+    private List<Map<String, Object>> buildRevenueTrend() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startDate = today.minusDays(6).atStartOfDay();
+        List<Map<String, Object>> rawList = parkingRecordMapper.selectRevenueTrend(startDate);
+
+        Map<LocalDate, BigDecimal> revenueMap = new HashMap<>();
+        for (Map<String, Object> raw : rawList) {
+            java.sql.Date sqlDate = (java.sql.Date) raw.get("date");
+            LocalDate date = sqlDate.toLocalDate();
+            BigDecimal revenue = (BigDecimal) raw.get("revenue");
+            revenueMap.put(date, revenue);
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d");
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            Map<String, Object> map = new HashMap<>();
+            map.put("date", date.format(formatter));
+            map.put("revenue", revenueMap.getOrDefault(date, BigDecimal.ZERO));
+            result.add(map);
+        }
+        return result;
+    }
+
+    private void buildLotHourlyHeatmap(DashboardVO vo, List<ParkingRecord> todayRecords, List<ParkingLot> lots) {
+        // 初始化每个停车场的12个时段（每2小时）进场计数
+        Map<String, int[]> lotCounts = new LinkedHashMap<>();
+        for (ParkingLot lot : lots) {
+            lotCounts.put(lot.getName(), new int[12]);
+        }
+
+        // 按停车场ID查找名称的缓存
+        Map<Long, String> lotNameMap = new HashMap<>();
+        for (ParkingLot lot : lots) {
+            lotNameMap.put(lot.getId(), lot.getName());
+        }
+
+        // 统计今日各停车场各时段进场数
+        for (ParkingRecord r : todayRecords) {
+            if (r.getEntryTime() != null && r.getLotId() != null) {
+                String lotName = lotNameMap.get(r.getLotId());
+                if (lotName != null) {
+                    int slot = r.getEntryTime().getHour() / 2;
+                    if (slot >= 0 && slot < 12) {
+                        lotCounts.get(lotName)[slot]++;
+                    }
+                }
+            }
+        }
+
+        // 生成 Y 轴标签（停车场名称列表）
+        List<String> heatmapLots = new ArrayList<>(lotCounts.keySet());
+        vo.setHeatmapLots(heatmapLots);
+
+        // 生成热力图数据 [[x, y, value], ...]
+        List<Map<String, Object>> heatmapData = new ArrayList<>();
+        int y = 0;
+        for (Map.Entry<String, int[]> entry : lotCounts.entrySet()) {
+            int[] counts = entry.getValue();
+            for (int x = 0; x < 12; x++) {
+                Map<String, Object> point = new HashMap<>();
+                point.put("x", x);
+                point.put("y", y);
+                point.put("value", counts[x]);
+                heatmapData.add(point);
+            }
+            y++;
+        }
+        vo.setHeatmapData(heatmapData);
     }
 }

@@ -1,6 +1,13 @@
 const { BASE_URL, TIMEOUT } = require('./constants')
 const { showToast } = require('./util')
 
+// 重试配置
+const RETRY_CONFIG = {
+  maxRetries: 2,        // 最大重试次数
+  retryDelay: 1000,    // 重试间隔（毫秒）
+  retryOnNetworkError: true  // 网络错误时是否重试
+}
+
 // 请求拦截器
 const requestInterceptor = (options) => {
   // 添加token
@@ -35,7 +42,7 @@ const responseInterceptor = (response) => {
       wx.removeStorageSync('userInfo')
       showToast('登录已过期，请重新登录')
       setTimeout(() => {
-        wx.navigateTo({ url: '/pages/login/login' })
+        wx.reLaunch({ url: '/pages/login/login' })
       }, 1500)
     }
     throw new Error(data.message || '请求失败')
@@ -44,8 +51,11 @@ const responseInterceptor = (response) => {
   return data
 }
 
-// 基础请求方法
+// 基础请求方法（带重试机制）
 const baseRequest = (url, method = 'GET', data = {}, options = {}) => {
+  const retryCount = options.retryCount || 0
+  const maxRetries = options.maxRetries !== undefined ? options.maxRetries : RETRY_CONFIG.maxRetries
+  
   return new Promise((resolve, reject) => {
     // 合并配置
     let config = {
@@ -60,8 +70,8 @@ const baseRequest = (url, method = 'GET', data = {}, options = {}) => {
     // 请求拦截
     config = requestInterceptor(config)
     
-    // 显示加载
-    if (!options.hideLoading) {
+    // 显示加载（重试时不重复显示）
+    if (!options.hideLoading && retryCount === 0) {
       wx.showLoading({ title: options.loadingText || '加载中...', mask: true })
     }
     
@@ -73,15 +83,31 @@ const baseRequest = (url, method = 'GET', data = {}, options = {}) => {
           const result = responseInterceptor(response)
           resolve(result)
         } catch (error) {
+          // 业务错误不重试
           reject(error)
         }
       },
       fail: (error) => {
         console.error('请求失败:', error)
-        reject(new Error('网络请求失败，请检查网络连接'))
+        
+        // 网络错误时尝试重试
+        if (RETRY_CONFIG.retryOnNetworkError && retryCount < maxRetries) {
+          console.log(`第 ${retryCount + 1} 次重试...`)
+          setTimeout(() => {
+            baseRequest(url, method, data, { 
+              ...options, 
+              retryCount: retryCount + 1,
+              hideLoading: true  // 重试时不显示loading
+            })
+              .then(resolve)
+              .catch(reject)
+          }, RETRY_CONFIG.retryDelay)
+        } else {
+          reject(new Error('网络请求失败，请检查网络连接'))
+        }
       },
       complete: () => {
-        if (!options.hideLoading) {
+        if (!options.hideLoading && retryCount === 0) {
           wx.hideLoading()
         }
       }

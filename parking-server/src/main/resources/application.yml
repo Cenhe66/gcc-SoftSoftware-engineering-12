@@ -40,6 +40,12 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
+wx:
+  miniapp:
+    app-id: ${WX_APP_ID:your-app-id}
+    app-secret: ${WX_APP_SECRET:your-app-secret}
+    move-car-template-id: ${WX_MOVE_CAR_TEMPLATE_ID:your-template-id}
+
 logging:
   level:
     com.parking.mapper: debug

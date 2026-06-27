@@ -1,17 +1,20 @@
+const { BASE_URL, WS_URL } = require('./utils/constants')
+
 App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'http://localhost:8080',
-    wsUrl: 'ws://localhost:8080/ws/parking',
+    baseUrl: BASE_URL,
+    wsUrl: WS_URL,
     location: null,
-    selectParkingMode: false // 停车场选择模式标记
+    selectParkingMode: false, // 停车场选择模式标记
+    privacyAuthorized: false // 隐私协议授权状态
   },
 
   onLaunch() {
     console.log('App Launch')
     this.checkLoginStatus()
-    this.getLocation()
+    this.initPrivacy()
   },
 
   onShow() {
@@ -20,6 +23,34 @@ App({
 
   onHide() {
     console.log('App Hide')
+  },
+
+  // 初始化隐私协议
+  initPrivacy() {
+    // 检查隐私协议授权状态
+    if (wx.getPrivacySetting) {
+      wx.getPrivacySetting({
+        success: res => {
+          console.log('隐私协议状态:', res)
+          if (res.needAuthorization) {
+            // 需要用户授权隐私协议
+            this.globalData.privacyAuthorized = false
+          } else {
+            // 用户已授权或不需要授权
+            this.globalData.privacyAuthorized = true
+            this.getLocation()
+          }
+        },
+        fail: err => {
+          console.log('获取隐私协议状态失败:', err)
+          // 如果获取失败，尝试直接获取位置
+          this.getLocation()
+        }
+      })
+    } else {
+      // 低版本基础库，直接获取位置
+      this.getLocation()
+    }
   },
 
   // 检查登录状态

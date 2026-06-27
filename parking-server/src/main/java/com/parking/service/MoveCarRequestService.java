@@ -17,4 +17,6 @@ public interface MoveCarRequestService extends IService<MoveCarRequest> {
     List<MoveCarRequest> listByRequesterId(Long requesterId);
 
     List<MoveCarRequest> listByTargetPlate(String targetPlate);
+
+    List<MoveCarRequest> listByTargetUserId(Long targetUserId);
 }

@@ -7,6 +7,8 @@ import com.parking.entity.ShareRecord;
 import com.parking.mapper.ShareBillMapper;
 import com.parking.service.ShareBillService;
 import com.parking.service.ShareRecordService;
+import com.parking.vo.ShareBillVO;
+import com.parking.vo.ShareBillStatsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +26,9 @@ public class ShareBillServiceImpl extends ServiceImpl<ShareBillMapper, ShareBill
     @Autowired
     private ShareRecordService shareRecordService;
 
+    @Autowired
+    private com.parking.service.UserService userService;
+
     @Override
     @Transactional
     public ShareBill createBill(ShareBillCreateDTO createDTO) {
@@ -30,8 +36,8 @@ public class ShareBillServiceImpl extends ServiceImpl<ShareBillMapper, ShareBill
         if (record == null) {
             throw new RuntimeException("共享记录不存在");
         }
-        if (record.getStatus() != 1) {
-            throw new RuntimeException("共享记录未处于共享中状态");
+        if (record.getStatus() != 1 && record.getStatus() != 4) {
+            throw new RuntimeException("共享记录未处于共享中或待停止状态");
         }
         long minutes = ChronoUnit.MINUTES.between(createDTO.getStartTime(), createDTO.getEndTime());
         if (minutes < 1) minutes = 1;
@@ -59,7 +65,29 @@ public class ShareBillServiceImpl extends ServiceImpl<ShareBillMapper, ShareBill
         bill.setBillDate(LocalDate.now());
         bill.setStatus(0);
         baseMapper.insert(bill);
+        // 将业主收益实时到账
+        if (ownerShare.compareTo(BigDecimal.ZERO) > 0) {
+            userService.addBalance(record.getOwnerId(), ownerShare);
+        }
         return bill;
+    }
+
+    @Override
+    public ShareBillStatsVO getStats() {
+        // TODO: 实现统计逻辑，需要根据当前用户获取
+        ShareBillStatsVO stats = new ShareBillStatsVO();
+        stats.setTotalBillCount(0);
+        stats.setUnpaidCount(0);
+        stats.setTotalEarnings(BigDecimal.ZERO);
+        stats.setThisMonthEarnings(BigDecimal.ZERO);
+        stats.setPendingAmount(BigDecimal.ZERO);
+        return stats;
+    }
+
+    @Override
+    public List<ShareBillVO> listVO(Long ownerId, Long renterId, Integer pageNum, Integer pageSize) {
+        // TODO: 实现列表查询逻辑
+        return new ArrayList<>();
     }
 
     @Override

@@ -176,6 +176,10 @@
   background: #ff976a;
 }
 
+.legend-dot.shared {
+  background: #9c27b0;
+}
+
 /* 楼层标签 */
 .floor-tabs {
   display: flex;
@@ -230,6 +234,11 @@
   border: 1px solid #ff976a;
 }
 
+.space-item.shared {
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid #9c27b0;
+}
+
 .space-code {
   font-size: 12px;
   font-weight: bold;
@@ -247,6 +256,10 @@
   color: #ff976a;
 }
 
+.space-item.shared .space-code {
+  color: #9c27b0;
+}
+
 .space-type {
   position: absolute;
   top: 2px;
@@ -256,6 +269,19 @@
   color: #fff;
   padding: 1px 3px;
   border-radius: 2px;
+}
+
+.space-shared-tag {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  font-size: 8px;
+  background: #9c27b0;
+  color: #fff;
+  padding: 1px 2px;
+  border-radius: 2px;
+  text-align: center;
 }
 
 /* 底部操作栏 */

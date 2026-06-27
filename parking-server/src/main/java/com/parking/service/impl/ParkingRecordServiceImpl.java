@@ -10,9 +10,12 @@ import com.parking.mapper.ParkingRecordMapper;
 import com.parking.service.ParkingLotService;
 import com.parking.service.ParkingRecordService;
 import com.parking.service.ParkingSpaceService;
+import com.parking.vo.ParkingRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -79,6 +82,16 @@ public class ParkingRecordServiceImpl extends ServiceImpl<ParkingRecordMapper, P
     @Override
     public List<ParkingRecord> listByUserId(Long userId) {
         return baseMapper.selectByUserId(userId);
+    }
+
+    @Override
+    public List<ParkingRecordVO> listVOByUserId(Long userId) {
+        return baseMapper.selectVOByUserId(userId);
+    }
+
+    @Override
+    public IPage<ParkingRecordVO> listVOPage(IPage<ParkingRecordVO> page, String plateNumber, Integer recordStatus, String entryStart, String entryEnd) {
+        return baseMapper.selectVOPage(page, plateNumber, recordStatus, entryStart, entryEnd);
     }
 
     @Override

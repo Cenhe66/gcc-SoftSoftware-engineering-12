@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `plate_number`    VARCHAR(20)  DEFAULT NULL COMMENT '绑定车牌号',
     `user_type`       TINYINT      DEFAULT 0 COMMENT '用户类型: 0-普通用户 1-业主 2-管理员',
     `profile_tags`    VARCHAR(255) DEFAULT NULL COMMENT '画像标签(JSON): 常用楼层、近电梯偏好等',
+    `balance`         DECIMAL(10,2) DEFAULT 0.00 COMMENT '钱包余额(元)',
     `status`          TINYINT      DEFAULT 1 COMMENT '状态: 0-禁用 1-正常',
     `deleted`         TINYINT      DEFAULT 0 COMMENT '逻辑删除: 0-未删除 1-已删除',
     `create_time`     DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -110,8 +111,10 @@ CREATE TABLE IF NOT EXISTS `reservation` (
     `start_time`      DATETIME     NOT NULL COMMENT '预约开始时间',
     `end_time`        DATETIME     NOT NULL COMMENT '预约结束时间',
     `reserve_fee`     DECIMAL(10,2) DEFAULT 0.00 COMMENT '预约费用',
-    `status`          TINYINT      DEFAULT 0 COMMENT '状态: 0-待使用 1-已入场 2-已取消 3-已超时',
+    `parking_fee`     DECIMAL(10,2) DEFAULT NULL COMMENT '实际停车费',
+    `status`          TINYINT      DEFAULT 0 COMMENT '状态: 0-待使用 1-使用中 2-已完成 3-已取消 4-待支付 5-已过期',
     `entry_time`      DATETIME     DEFAULT NULL COMMENT '实际入场时间',
+    `exit_time`       DATETIME     DEFAULT NULL COMMENT '实际离场时间',
     `cancel_time`     DATETIME     DEFAULT NULL COMMENT '取消时间',
     `deleted`         TINYINT      DEFAULT 0 COMMENT '逻辑删除',
     `create_time`     DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -177,6 +180,7 @@ CREATE TABLE IF NOT EXISTS `move_car_request` (
     `requester_id`    BIGINT       NOT NULL COMMENT '请求人用户ID',
     `target_plate`    VARCHAR(20)  NOT NULL COMMENT '目标车辆车牌号',
     `target_space_id` BIGINT       DEFAULT NULL COMMENT '目标车位ID',
+    `target_user_id`  BIGINT       DEFAULT NULL COMMENT '目标车主用户ID',
     `reason`          VARCHAR(255) DEFAULT NULL COMMENT '挪车原因',
     `status`          TINYINT      DEFAULT 0 COMMENT '状态: 0-待处理 1-已通知 2-已处理 3-已取消',
     `deleted`         TINYINT      DEFAULT 0 COMMENT '逻辑删除',
@@ -184,6 +188,7 @@ CREATE TABLE IF NOT EXISTS `move_car_request` (
     `update_time`     DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_requester_id` (`requester_id`),
     INDEX `idx_target_plate` (`target_plate`),
+    INDEX `idx_target_user_id` (`target_user_id`),
     INDEX `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='挪车请求表';
 

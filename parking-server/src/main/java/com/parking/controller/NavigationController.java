@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/navigation")
+@RequestMapping("/api/navigation")
 public class NavigationController {
 
     @Autowired

@@ -21,6 +21,8 @@ public class MoveCarRequest {
 
     private Long targetSpaceId;
 
+    private Long targetUserId;
+
     private String reason;
 
     private Integer status;

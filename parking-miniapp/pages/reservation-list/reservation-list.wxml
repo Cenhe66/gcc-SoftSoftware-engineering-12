@@ -77,15 +77,69 @@
 
       <!-- 操作按钮 -->
       <view class="action-bar">
-        <view class="cost-info" wx:if="{{item.status === 'completed' || item.status === 'cancelled'}}">
+        <view class="cost-info" wx:if="{{item.status === 'completed' || item.status === 'cancelled' || item.status === 'unpaid'}}">
           <text class="cost-label">费用</text>
-          <text class="cost-value">¥{{item.amount || '0.00'}}</text>
+          <text class="cost-value">¥{{item.reserveFee || item.amount || '0.00'}}</text>
+        </view>
+        <!-- 待支付停车费状态显示停车费 -->
+        <view class="cost-info" wx:if="{{item.status === 'pending_payment'}}">
+          <text class="cost-label">停车费</text>
+          <text class="cost-value">¥{{item.parkingFee || item.amount || '0.00'}}</text>
+        </view>
+        <!-- 待支付状态显示支付倒计时 -->
+        <view class="pay-countdown" wx:if="{{item.status === 'unpaid' && item.payCountdownText}}">
+          <text class="countdown-icon">⏱</text>
+          <text class="countdown-label">支付倒计时</text>
+          <text class="countdown-value {{item.isExpired ? 'expired' : 'warning'}}">{{item.payCountdownText}}</text>
+        </view>
+        <!-- 使用中状态显示预估费用 -->
+        <view class="cost-info" wx:if="{{item.status === 'ongoing'}}">
+          <text class="cost-label">预约费</text>
+          <text class="cost-value">¥{{item.reserveFee || '0.00'}}</text>
+        </view>
+        <view class="duration-info" wx:if="{{item.status === 'ongoing' && item.parkedDuration}}">
+          <text class="duration-label">已停</text>
+          <text class="duration-value">{{item.parkedDuration}}</text>
+        </view>
+        <view class="estimated-fee" wx:if="{{item.status === 'ongoing' && item.estimatedFee}}">
+          <text class="fee-label">预估</text>
+          <text class="fee-value">¥{{item.estimatedFee}}</text>
+        </view>
+        <!-- 待使用状态显示预约时长 -->
+        <view class="duration-info" wx:if="{{item.status === 'upcoming'}}">
+          <text class="duration-label">预约</text>
+          <text class="duration-value">{{item.durationText}}</text>
         </view>
         <view class="countdown" wx:if="{{item.status === 'upcoming' && item.countdown}}">
           <text class="countdown-label">距开始</text>
           <text class="countdown-value">{{item.countdown}}</text>
         </view>
         <view class="action-btns">
+          <!-- 待支付状态：去支付按钮 -->
+          <button 
+            class="btn pay {{item.isExpired ? 'disabled' : ''}}" 
+            wx:if="{{item.status === 'unpaid' && !item.isExpired}}"
+            bindtap="goToPayReservation"
+            data-item="{{item}}"
+          >去支付</button>
+          <button 
+            class="btn disabled" 
+            wx:if="{{item.status === 'unpaid' && item.isExpired}}"
+            disabled
+          >已超时</button>
+          <button 
+            class="btn cancel" 
+            wx:if="{{item.status === 'unpaid' && !item.isExpired}}"
+            bindtap="cancelReservation"
+            data-id="{{item.id}}"
+          >取消</button>
+          <!-- 待使用状态：入场按钮 -->
+          <button 
+            class="btn pay" 
+            wx:if="{{item.status === 'upcoming'}}"
+            bindtap="enterParking"
+            data-item="{{item}}"
+          >入场</button>
           <button 
             class="btn cancel" 
             wx:if="{{item.status === 'upcoming'}}"
@@ -98,12 +152,20 @@
             bindtap="navigateToParking"
             data-item="{{item}}"
           >导航前往</button>
+          <!-- 使用中状态：离场按钮 -->
           <button 
             class="btn pay" 
             wx:if="{{item.status === 'ongoing'}}"
-            bindtap="goToPayment"
+            bindtap="exitParking"
             data-item="{{item}}"
-          >立即缴费</button>
+          >离场缴费</button>
+          <!-- 待支付停车费状态：支付按钮 -->
+          <button 
+            class="btn pay" 
+            wx:if="{{item.status === 'pending_payment'}}"
+            bindtap="goToPayParkingFee"
+            data-item="{{item}}"
+          >支付停车费</button>
         </view>
       </view>
     </view>

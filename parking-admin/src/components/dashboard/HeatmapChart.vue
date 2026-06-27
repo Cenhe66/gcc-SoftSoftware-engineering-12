@@ -10,6 +10,10 @@ const props = defineProps({
   data: {
     type: Array,
     default: () => []
+  },
+  yLabels: {
+    type: Array,
+    default: () => ['F2', 'F1', 'B1', 'B2', 'B3']
   }
 })
 
@@ -17,7 +21,6 @@ const chartRef = ref(null)
 let chart = null
 
 const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00']
-const floors = ['F2', 'F1', 'B1', 'B2', 'B3']
 
 const initChart = () => {
   if (!chartRef.value) return
@@ -33,8 +36,9 @@ const initChart = () => {
         color: '#fff'
       },
       formatter: (params) => {
-        return `${floors[params.value[1]]} ${hours[params.value[0]]}<br/>使用率: <span style="color: #E6A23C; font-weight: bold">${params.value[2]}%</span>`
-      }
+          const yLabel = props.yLabels[params.value[1]] || ''
+          return `${yLabel} ${hours[params.value[0]]}<br/>进场数: <span style="color: #E6A23C; font-weight: bold">${params.value[2]}</span>`
+        }
     },
     grid: {
       left: '8%',
@@ -64,7 +68,7 @@ const initChart = () => {
     },
     yAxis: {
       type: 'category',
-      data: floors,
+      data: props.yLabels,
       splitArea: {
         show: true,
         areaStyle: {

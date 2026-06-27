@@ -1,10 +1,29 @@
-// API基础地址
-// 开发环境使用局域网 IP，真机调试时需要替换为电脑的实际 IP
-// 模拟器调试时可使用 localhost
-const BASE_URL = 'http://localhost:8080'
+// 环境配置
+const ENV = {
+  DEV: 'development',
+  PROD: 'production'
+}
+
+// 当前环境（根据需要修改）
+const CURRENT_ENV = ENV.DEV
+
+// 环境对应的API基础地址
+const ENV_CONFIG = {
+  [ENV.DEV]: {
+    BASE_URL: 'http://localhost:8080',
+    WS_URL: 'ws://localhost:8080/ws/parking'
+  },
+  [ENV.PROD]: {
+    BASE_URL: 'https://your-production-domain.com',
+    WS_URL: 'wss://your-production-domain.com/ws/parking'
+  }
+}
+
+// API基础地址（根据当前环境自动选择）
+const BASE_URL = ENV_CONFIG[CURRENT_ENV].BASE_URL
 
 // WebSocket地址
-const WS_URL = 'ws://localhost:8080/ws/parking'
+const WS_URL = ENV_CONFIG[CURRENT_ENV].WS_URL
 
 // 请求超时时间（毫秒）
 const TIMEOUT = 30000
@@ -137,6 +156,11 @@ const WS_MESSAGE_TYPE = {
   PAYMENT_SUCCESS: 'PAYMENT_SUCCESS'
 }
 
+// 微信订阅消息模板ID（需在小程序后台申请）
+const SUBSCRIBE_TEMPLATES = {
+  MOVE_CAR: 'your-move-car-template-id'
+}
+
 module.exports = {
   BASE_URL,
   WS_URL,
@@ -156,5 +180,6 @@ module.exports = {
   HEALTH_STATUS,
   HEALTH_STATUS_TEXT,
   MOVE_CAR_MESSAGES,
-  WS_MESSAGE_TYPE
+  WS_MESSAGE_TYPE,
+  SUBSCRIBE_TEMPLATES
 }

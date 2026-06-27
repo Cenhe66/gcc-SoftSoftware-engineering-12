@@ -81,6 +81,10 @@
           <view class="legend-dot reserved"></view>
           <text>预约</text>
         </view>
+        <view class="legend-item">
+          <view class="legend-dot shared"></view>
+          <text>共享</text>
+        </view>
       </view>
     </view>
     
@@ -98,7 +102,7 @@
 
     <view class="space-grid">
       <view 
-        class="space-item {{item.status === 0 ? 'free' : item.status === 1 ? 'occupied' : 'reserved'}}"
+        class="space-item {{item.isShared === 1 ? 'shared' : item.status === 0 ? 'free' : item.status === 1 ? 'occupied' : 'reserved'}}"
         wx:for="{{currentSpaces}}"
         wx:key="id"
         bindtap="onSpaceClick"
@@ -106,6 +110,7 @@
       >
         <text class="space-code">{{item.spaceCode}}</text>
         <text class="space-type" wx:if="{{item.spaceType === 1}}">充</text>
+        <text class="space-shared-tag" wx:if="{{item.isShared === 1}}">¥{{item.shareHourlyPrice}}</text>
       </view>
     </view>
   </view>

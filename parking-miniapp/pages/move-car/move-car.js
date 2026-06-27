@@ -4,55 +4,96 @@ const { showToast, showLoading, hideLoading, formatDate } = require('../../utils
 Page({
   data: {
     spaceCode: '',
-    moveCarList: []
+    moveCarList: [],
+    parkingLots: [],
+    parkingLotNames: [],
+    selectedLotIndex: -1
   },
 
   onLoad() {
+    this.loadParkingLots()
     this.loadMoveCarList()
+  },
+
+  // 加载停车场列表
+  loadParkingLots() {
+    get('/api/parking-lot/list', {}, { hideLoading: true })
+      .then(res => {
+        console.log('停车场列表:', res)
+        if (res.code === 200 && res.data) {
+          const lots = res.data
+          this.setData({
+            parkingLots: lots,
+            parkingLotNames: lots.map(item => item.name)
+          })
+        } else {
+          showToast('加载停车场失败')
+        }
+      })
+      .catch(err => {
+        console.error('加载停车场失败:', err)
+        showToast('加载停车场失败')
+        this.setData({ parkingLots: [], parkingLotNames: [] })
+      })
+  },
+
+  // 选择停车场
+  onParkingLotChange(e) {
+    const index = parseInt(e.detail.value)
+    this.setData({ selectedLotIndex: index })
   },
 
   onShow() {
     this.loadMoveCarList()
   },
 
-  // 加载挪车记录
+  // 加载挪车记录（合并后端 + 本地记录）
   loadMoveCarList() {
     const userInfo = wx.getStorageSync('userInfo')
     const userId = userInfo ? userInfo.id : ''
-    get(`/move-car/list/requester/${userId}`, { pageNum: 1, pageSize: 3 }, { hideLoading: true })
+    const localKey = 'moveCarHistory_' + (userId || '0')
+    const localHistory = wx.getStorageSync(localKey) || []
+
+    const mergeAndSet = (serverList) => {
+      const all = [...serverList, ...localHistory]
+      // 去重（以 id 为准）
+      const map = new Map()
+      all.forEach(item => {
+        if (item.id && !map.has(item.id)) {
+          map.set(item.id, item)
+        }
+      })
+      const uniqueList = Array.from(map.values())
+      // 按时间倒序，取前 3 条
+      const sorted = uniqueList.sort((a, b) => new Date(b.createTime) - new Date(a.createTime)).slice(0, 3)
+      const processedList = sorted.map(item => ({
+        ...item,
+        createTime: item.createTime ? formatDate(item.createTime, 'MM-DD HH:mm') : ''
+      }))
+      this.setData({ moveCarList: processedList })
+    }
+
+    // 未登录（匿名用户）只显示本地记录，不调后端
+    if (!userId) {
+      mergeAndSet([])
+      return
+    }
+
+    get(`/api/move-car/list/requester/${userId}`, { pageNum: 1, pageSize: 3 }, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
-          const list = res.data.records || []
-          const processedList = list.map(item => ({
+          const list = Array.isArray(res.data) ? res.data : (res.data.records || [])
+          const processedServerList = list.map(item => ({
             ...item,
-            createTime: formatDate(item.createTime, 'MM-DD HH:mm'),
             statusText: item.status === 0 ? '待处理' : '已完成'
           }))
-          this.setData({ moveCarList: processedList })
+          mergeAndSet(processedServerList)
+        } else {
+          mergeAndSet([])
         }
       })
       .catch(() => {
-        // 模拟数据
-        this.setData({
-          moveCarList: [
-            {
-              id: 1,
-              parkingName: '万达广场停车场',
-              spaceCode: 'B2-015',
-              createTime: '05-27 14:30',
-              status: 0,
-              statusText: '待处理'
-            },
-            {
-              id: 2,
-              parkingName: '国贸中心停车场',
-              spaceCode: 'B1-088',
-              createTime: '05-26 09:15',
-              status: 1,
-              statusText: '已完成'
-            }
-          ]
-        })
+        mergeAndSet([])
       })
   },
 
@@ -109,25 +150,29 @@ Page({
 
   // 根据车位号搜索
   searchByCode() {
-    const { spaceCode } = this.data
+    const { spaceCode, selectedLotIndex, parkingLots } = this.data
     if (!spaceCode) return
+    if (selectedLotIndex < 0) {
+      showToast('请先选择停车场')
+      return
+    }
 
+    const lotId = parkingLots[selectedLotIndex].id
     showLoading('查询中...')
-    
-    // 调用API查询车位信息
-    get('/api/parking-space/info', { spaceCode }, { hideLoading: true })
+
+    // 调用API查询车位信息（必须指定停车场+车位号）
+    get('/api/parking-space/info', { lotId, spaceCode }, { hideLoading: true })
       .then(res => {
         hideLoading()
         if (res.code === 200 && res.data) {
           this.goToRequestPage(res.data.id, spaceCode)
         } else {
-          showToast('未找到该车位信息')
+          showToast(res.message || '未找到该车位信息')
         }
       })
       .catch(() => {
         hideLoading()
-        // 模拟成功
-        this.goToRequestPage(1, spaceCode)
+        showToast('查询失败，请重试')
       })
   },
 
@@ -149,7 +194,7 @@ Page({
   // 查看全部记录
   viewAllRecords() {
     wx.navigateTo({
-      url: '/pages/move-car-message/move-car-message'
+      url: '/pages/move-car-list/move-car-list'
     })
   }
 })

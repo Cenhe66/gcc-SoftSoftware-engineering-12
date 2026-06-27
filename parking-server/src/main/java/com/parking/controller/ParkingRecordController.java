@@ -1,10 +1,13 @@
 package com.parking.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.parking.dto.EntryDTO;
 import com.parking.dto.ExitDTO;
 import com.parking.entity.ParkingRecord;
 import com.parking.service.ParkingRecordService;
 import com.parking.vo.Result;
+import com.parking.vo.ParkingRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +34,22 @@ public class ParkingRecordController {
     }
 
     @GetMapping("/list/{userId}")
-    public Result<List<ParkingRecord>> listByUserId(@PathVariable Long userId) {
-        List<ParkingRecord> list = parkingRecordService.listByUserId(userId);
+    public Result<List<ParkingRecordVO>> listByUserId(@PathVariable Long userId) {
+        List<ParkingRecordVO> list = parkingRecordService.listVOByUserId(userId);
         return Result.success(list);
+    }
+
+    @GetMapping("/admin/list")
+    public Result<IPage<ParkingRecordVO>> adminList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String plateNumber,
+            @RequestParam(required = false) Integer recordStatus,
+            @RequestParam(required = false) String entryStart,
+            @RequestParam(required = false) String entryEnd) {
+        Page<ParkingRecordVO> pageParam = new Page<>(page, size);
+        IPage<ParkingRecordVO> result = parkingRecordService.listVOPage(pageParam, plateNumber, recordStatus, entryStart, entryEnd);
+        return Result.success(result);
     }
 
     @GetMapping("/detail/{id}")

@@ -22,15 +22,15 @@
         <text class="item-value">{{orderInfo.spaceCode}}</text>
       </view>
       <view class="detail-item">
-        <text class="item-label">入场时间</text>
+        <text class="item-label">{{paymentType === 'parking' ? '入场时间' : '预约开始'}}</text>
         <text class="item-value">{{orderInfo.entryTime}}</text>
       </view>
       <view class="detail-item" wx:if="{{orderInfo.exitTime}}">
-        <text class="item-label">离场时间</text>
+        <text class="item-label">{{paymentType === 'parking' ? '离场时间' : '预约结束'}}</text>
         <text class="item-value">{{orderInfo.exitTime}}</text>
       </view>
       <view class="detail-item">
-        <text class="item-label">停车时长</text>
+        <text class="item-label">{{paymentType === 'parking' ? '停车时长' : '预约时长'}}</text>
         <text class="item-value">{{orderInfo.duration}}</text>
       </view>
       <view class="detail-item">

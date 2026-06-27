@@ -58,13 +58,15 @@ Page({
 
   // 加载统计数据
   loadStats() {
-    return get('/api/share-record/stats', {}, { hideLoading: true })
+    const userInfo = wx.getStorageSync('userInfo')
+    const ownerId = userInfo ? userInfo.id : ''
+    return get('/api/share-record/stats', { ownerId }, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
           this.setData({
             stats: {
-              totalShares: res.data.totalShares || 0,
-              activeShares: res.data.activeShares || 0,
+              totalShares: res.data.totalSharedCount || 0,
+              activeShares: res.data.activeCount || 0,
               totalEarnings: res.data.totalEarnings || '0.00'
             }
           })
@@ -83,16 +85,20 @@ Page({
 
     this.setData({ loading: true })
 
+    const userInfo = wx.getStorageSync('userInfo')
+    const ownerId = userInfo ? userInfo.id : ''
+
     const params = {
+      ownerId,
       pageNum: this.data.pageNum,
       pageSize: this.data.pageSize,
-      status: this.data.currentFilter === 'active' ? '0,1' : '2'
+      status: this.data.currentFilter === 'active' ? '1' : '2,3'
     }
 
     return get('/api/share-record/list', params, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
-          const list = res.data.records || []
+          const list = res.data || []
           const processedList = list.map(item => this.processShareItem(item))
 
           this.setData({
@@ -113,9 +119,9 @@ Page({
   // 处理共享数据
   processShareItem(item) {
     const statusMap = {
-      0: { status: 'active', statusText: '共享中' },
-      1: { status: 'paused', statusText: '已暂停' },
-      2: { status: 'ended', statusText: '已结束' }
+      1: { status: 'active', statusText: '共享中' },
+      2: { status: 'paused', statusText: '已暂停' },
+      3: { status: 'ended', statusText: '已结束' }
     }
 
     const statusInfo = statusMap[item.status] || { status: 'unknown', statusText: '未知' }
@@ -185,8 +191,7 @@ Page({
           })
           .catch(() => {
             hideLoading()
-            showToast('已暂停', 'success')
-            this.refreshData()
+            showToast('操作失败，请重试')
           })
       }
     })
@@ -208,8 +213,7 @@ Page({
       })
       .catch(() => {
         hideLoading()
-        showToast('已恢复', 'success')
-        this.refreshData()
+        showToast('操作失败，请重试')
       })
   },
 
@@ -231,11 +235,33 @@ Page({
           })
           .catch(() => {
             hideLoading()
-            showToast('已结束', 'success')
-            this.refreshData()
+            showToast('操作失败，请重试')
           })
       }
     })
+  },
+
+  // 查看二维码
+  showQrCode(e) {
+    const spaceId = e.currentTarget.dataset.spaceId
+    if (!spaceId) {
+      showToast('车位信息不完整')
+      return
+    }
+    get(`/api/parking-space/qrcode/${spaceId}`, {}, { hideLoading: true })
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          const base64 = res.data.base64
+          wx.previewImage({
+            urls: [base64]
+          })
+        } else {
+          showToast('生成二维码失败')
+        }
+      })
+      .catch(() => {
+        showToast('生成二维码失败')
+      })
   },
 
   // 去发布
@@ -249,68 +275,17 @@ Page({
   setMockStats() {
     this.setData({
       stats: {
-        totalShares: 5,
-        activeShares: 2,
-        totalEarnings: '256.80'
+        totalShares: 0,
+        activeShares: 0,
+        totalEarnings: '0.00'
       }
     })
   },
 
   // 模拟数据
   setMockData() {
-    const mockData = {
-      active: [
-        {
-          id: 1,
-          parkingName: '万达广场停车场',
-          spaceCode: 'B2-015',
-          status: 0,
-          timeMode: 'daily',
-          startTime: '09:00',
-          endTime: '18:00',
-          weekdays: [1, 2, 3, 4, 5],
-          pricePerHour: 6,
-          sharedHours: 45,
-          earnings: '216.00'
-        },
-        {
-          id: 2,
-          parkingName: '国贸中心停车场',
-          spaceCode: 'B1-088',
-          status: 1,
-          timeMode: 'fixed',
-          startDate: '2026-05-01',
-          endDate: '2026-05-31',
-          startTime: '19:00',
-          endTime: '08:00',
-          pricePerHour: 8,
-          sharedHours: 12,
-          earnings: '76.80'
-        }
-      ],
-      history: [
-        {
-          id: 3,
-          parkingName: '三里屯太古里停车场',
-          spaceCode: 'P-032',
-          status: 2,
-          timeMode: 'fixed',
-          startDate: '2026-04-01',
-          endDate: '2026-04-30',
-          startTime: '09:00',
-          endTime: '18:00',
-          pricePerHour: 5,
-          sharedHours: 120,
-          earnings: '480.00'
-        }
-      ]
-    }
-
-    const list = mockData[this.data.currentFilter] || []
-    const processedList = list.map(item => this.processShareItem(item))
-
     this.setData({
-      shareList: processedList,
+      shareList: [],
       hasMore: false,
       loading: false,
       emptyText: this.getEmptyText()

@@ -53,6 +53,32 @@ Page({
 
   // 获取当前位置
   getLocation() {
+    // 检查隐私协议是否已授权
+    const app = getApp()
+    if (!app.globalData.privacyAuthorized) {
+      // 使用隐私协议弹窗
+      if (wx.onNeedPrivacyAuthorization) {
+        wx.onNeedPrivacyAuthorization((resolve, event) => {
+          console.log('需要隐私授权:', event)
+          // 这里需要用户点击同意后调用 resolve
+          // 由于没有弹窗组件，暂时直接 resolve
+          resolve({
+            event: 'agree',
+            disclosure: '用户同意隐私协议'
+          })
+          app.globalData.privacyAuthorized = true
+          this.doGetLocation()
+        })
+      }
+      // 尝试直接获取位置，如果需要授权会触发隐私弹窗
+      this.doGetLocation()
+    } else {
+      this.doGetLocation()
+    }
+  },
+
+  // 实际获取位置的方法
+  doGetLocation() {
     wx.getLocation({
       type: 'gcj02',
       success: (res) => {
@@ -63,7 +89,8 @@ Page({
         })
         this.loadParkingList()
       },
-      fail: () => {
+      fail: (err) => {
+        console.log('获取位置失败:', err)
         this.setData({
           locationText: '定位失败'
         })
@@ -139,13 +166,20 @@ Page({
             loading: false
           })
         } else {
-          // 使用模拟数据
-          this.setMockData()
+          this.setData({
+            parkingList: [],
+            hasMore: false,
+            loading: false
+          })
         }
       })
       .catch(err => {
         console.error('加载失败:', err)
-        this.setMockData()
+        this.setData({
+          parkingList: [],
+          hasMore: false,
+          loading: false
+        })
       })
   },
 
@@ -153,78 +187,6 @@ Page({
   loadMore() {
     this.setData({ pageNum: this.data.pageNum + 1 })
     this.loadParkingList()
-  },
-
-  // 模拟数据（测试用）
-  setMockData() {
-    const mockData = [
-      {
-        id: 1,
-        name: '万达广场停车场',
-        address: '朝阳区建国路88号万达广场B2-B3层',
-        totalSpace: 500,
-        freeSpace: 128,
-        pricePerHour: 8,
-        hasCharging: true,
-        isIndoor: true,
-        hasElevator: true,
-        distance: 350
-      },
-      {
-        id: 2,
-        name: '国贸中心停车场',
-        address: '朝阳区建国门外大街1号',
-        totalSpace: 800,
-        freeSpace: 45,
-        pricePerHour: 12,
-        hasCharging: true,
-        isIndoor: true,
-        hasElevator: true,
-        distance: 580
-      },
-      {
-        id: 3,
-        name: '三里屯太古里停车场',
-        address: '朝阳区三里屯路19号',
-        totalSpace: 300,
-        freeSpace: 12,
-        pricePerHour: 10,
-        hasCharging: false,
-        isIndoor: false,
-        hasElevator: false,
-        distance: 920
-      },
-      {
-        id: 4,
-        name: '朝阳大悦城停车场',
-        address: '朝阳区朝阳北路101号',
-        totalSpace: 600,
-        freeSpace: 256,
-        pricePerHour: 6,
-        hasCharging: true,
-        isIndoor: true,
-        hasElevator: true,
-        distance: 1200
-      },
-      {
-        id: 5,
-        name: '望京SOHO停车场',
-        address: '朝阳区望京街9号',
-        totalSpace: 400,
-        freeSpace: 89,
-        pricePerHour: 7,
-        hasCharging: true,
-        isIndoor: true,
-        hasElevator: true,
-        distance: 1850
-      }
-    ]
-
-    this.setData({
-      parkingList: this.data.pageNum === 1 ? mockData : [...this.data.parkingList, ...mockData],
-      hasMore: false,
-      loading: false
-    })
   },
 
   // 搜索

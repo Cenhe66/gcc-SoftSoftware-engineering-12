@@ -34,4 +34,10 @@ public class DashboardVO {
     private List<Map<String, Object>> lotStatusList;
 
     private List<Map<String, Object>> recentRecords;
+
+    private List<Map<String, Object>> revenueTrend;
+
+    private List<String> heatmapLots;
+
+    private List<Map<String, Object>> heatmapData;
 }

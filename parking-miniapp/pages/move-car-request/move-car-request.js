@@ -1,17 +1,19 @@
 const { post, get } = require('../../utils/request')
 const { showToast, showLoading, hideLoading } = require('../../utils/util')
+const { SUBSCRIBE_TEMPLATES } = require('../../utils/constants')
+
+// 获取当前用户ID（匿名用户使用 0）
+function getRequesterId() {
+  const userInfo = wx.getStorageSync('userInfo')
+  return (userInfo && userInfo.id) ? userInfo.id : 0
+}
 
 Page({
   data: {
     spaceId: null,
     spaceCode: '',
-    parkingName: '万达广场停车场',
-    vehicle: {
-      plateNumber: '京A·**345',
-      brand: '大众',
-      model: '帕萨特',
-      color: '黑色'
-    },
+    parkingName: '',
+    vehicle: null,
     reasons: [
       '您的车辆挡住了我的车，请挪一下',
       '我需要出行，麻烦挪一下车',
@@ -52,12 +54,21 @@ Page({
             vehicle: {
               ...res.data,
               plateNumber
-            }
+            },
+            parkingName: res.data.parkingName || ''
           })
+        } else {
+          showToast(res.message || '该车位当前无车辆停放')
+          setTimeout(() => {
+            wx.navigateBack()
+          }, 1500)
         }
       })
       .catch(() => {
-        // 使用默认模拟数据
+        showToast('加载车辆信息失败')
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
       })
   },
 
@@ -94,21 +105,59 @@ Page({
   submitRequest() {
     if (!this.data.canSubmit) return
 
-    const { spaceId, selectedReason, reasons, remark, contactPhone } = this.data
+    // 请求订阅消息授权，以便车主收到通知
+    wx.requestSubscribeMessage({
+      tmplIds: [SUBSCRIBE_TEMPLATES.MOVE_CAR],
+      success: (res) => {
+        console.log('订阅消息授权结果:', res)
+      },
+      fail: (err) => {
+        console.warn('订阅消息授权失败:', err)
+      },
+      complete: () => {
+        this.doSubmitRequest()
+      }
+    })
+  },
+
+  // 实际提交请求
+  doSubmitRequest() {
+    const { spaceId, selectedReason, reasons, remark, contactPhone, spaceCode, parkingName } = this.data
 
     showLoading('发送中...')
 
     const requestData = {
-      spaceId: parseInt(spaceId),
+      targetSpaceId: parseInt(spaceId),
       reason: reasons[selectedReason],
-      remark: remark,
-      contactPhone: contactPhone
+      requesterId: getRequesterId()
     }
 
-    post('/move-car/request', requestData)
+    post('/api/move-car/request', requestData)
       .then(res => {
         hideLoading()
         if (res.code === 200) {
+          // 保存记录到本地（按用户隔离）
+          const userInfo = wx.getStorageSync('userInfo')
+          const userId = userInfo ? userInfo.id : '0'
+          const localKey = 'moveCarHistory_' + userId
+          const history = wx.getStorageSync(localKey) || []
+          // 去重：如果已有相同 requestId 的记录则替换
+          const existingIdx = history.findIndex(item => item.id === res.data.id)
+          const record = {
+            id: res.data.id,
+            spaceCode: spaceCode,
+            parkingName: parkingName || '未知停车场',
+            createTime: new Date().toISOString(),
+            status: 0,
+            statusText: '待处理'
+          }
+          if (existingIdx >= 0) {
+            history[existingIdx] = record
+          } else {
+            history.unshift(record)
+          }
+          wx.setStorageSync(localKey, history.slice(0, 50))
+
           showToast('发送成功', 'success')
           setTimeout(() => {
             wx.navigateTo({
@@ -121,12 +170,7 @@ Page({
       })
       .catch(() => {
         hideLoading()
-        showToast('发送成功', 'success')
-        setTimeout(() => {
-          wx.navigateTo({
-            url: '/pages/move-car-message/move-car-message?requestId=1'
-          })
-        }, 1500)
+        showToast('发送失败，请重试')
       })
   }
 })

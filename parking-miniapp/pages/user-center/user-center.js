@@ -37,16 +37,26 @@ Page({
 
   // 加载用户统计数据
   loadUserStats() {
-    // 这里可以调用后端API获取统计数据
-    // 目前使用模拟数据
-    this.setData({
-      stats: {
-        parkingCount: 12,
-        reservationCount: 5,
-        shareCount: 3,
-        totalEarnings: '156.80'
-      }
-    })
+    const userId = this.data.userInfo.id
+    if (!userId) return
+
+    get(`/api/user/stats/${userId}`, {}, { hideLoading: true })
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          const data = res.data
+          this.setData({
+            stats: {
+              parkingCount: data.parkingCount || 0,
+              reservationCount: data.reservationCount || 0,
+              shareCount: data.shareCount || 0,
+              totalEarnings: data.totalEarnings ? String(data.totalEarnings) : '0.00'
+            }
+          })
+        }
+      })
+      .catch(err => {
+        console.error('加载用户统计失败:', err)
+      })
   },
 
   // 跳转到登录页
@@ -61,6 +71,13 @@ Page({
     if (!this.checkLogin()) return
     wx.switchTab({
       url: '/pages/parking-record/parking-record'
+    })
+  },
+
+  // 跳转到挪车记录（支持匿名）
+  goToMoveCarList() {
+    wx.navigateTo({
+      url: '/pages/move-car-list/move-car-list'
     })
   },
 

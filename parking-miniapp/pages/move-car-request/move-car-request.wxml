@@ -6,19 +6,22 @@
   </view>
 
   <!-- 车辆信息 -->
-  <view class="vehicle-card">
+  <view class="vehicle-card" wx:if="{{vehicle}}">
     <view class="vehicle-header">
       <image class="vehicle-icon" src="/static/icons/car.png" mode="aspectFit"></image>
       <text class="vehicle-plate">{{vehicle.plateNumber}}</text>
     </view>
-    <view class="vehicle-info">
-      <text class="info-item">{{vehicle.brand}} {{vehicle.model}}</text>
-      <text class="info-item">{{vehicle.color}}</text>
+    <view class="vehicle-info" wx:if="{{vehicle.brand || vehicle.model || vehicle.color}}">
+      <text class="info-item" wx:if="{{vehicle.brand || vehicle.model}}">{{vehicle.brand}} {{vehicle.model}}</text>
+      <text class="info-item" wx:if="{{vehicle.color}}">{{vehicle.color}}</text>
     </view>
     <view class="privacy-notice">
       <image src="/static/icons/shield.png" mode="aspectFit"></image>
       <text>车主信息已脱敏处理，保护双方隐私</text>
     </view>
+  </view>
+  <view class="vehicle-card empty" wx:if="{{vehicle === null}}">
+    <text class="empty-text">未找到该车位车辆信息</text>
   </view>
 
   <!-- 挪车原因 -->

@@ -8,7 +8,9 @@
     </view>
     <view class="parking-price">
       <text class="price-label">收费标准</text>
-      <text class="price-value">¥{{parkingInfo.pricePerHour}}/小时</text>
+      <text class="price-value" wx:if="{{isOwnerSelfUse}}">个人车位，免费使用</text>
+      <text class="price-value" wx:elif="{{isShared}}">共享车位 ¥{{parkingInfo.pricePerHour}}/小时</text>
+      <text class="price-value" wx:else>¥{{parkingInfo.pricePerHour}}/小时</text>
     </view>
   </view>
 
@@ -88,7 +90,9 @@
       </view>
       <view class="cost-item">
         <text class="cost-label">单价</text>
-        <text class="cost-value">¥{{parkingInfo.pricePerHour}}/小时</text>
+        <text class="cost-value" wx:if="{{isOwnerSelfUse}}">免费</text>
+        <text class="cost-value" wx:elif="{{isShared}}">共享 ¥{{parkingInfo.pricePerHour}}/小时</text>
+        <text class="cost-value" wx:else>¥{{parkingInfo.pricePerHour}}/小时</text>
       </view>
       <view class="cost-item">
         <text class="cost-label">预约费用</text>
@@ -96,13 +100,14 @@
       </view>
       <view class="cost-item total">
         <text class="cost-label">合计</text>
-        <text class="cost-value price">¥{{estimatedCost}}</text>
+        <text class="cost-value price" wx:if="{{isOwnerSelfUse}}">免费</text>
+        <text class="cost-value price" wx:else>¥{{estimatedCost}}</text>
       </view>
     </view>
   </view>
 
   <!-- 预约须知 -->
-  <view class="notice">
+  <view class="notice" wx:if="{{!isOwnerSelfUse}}">
     <text class="notice-title">预约须知：</text>
     <text class="notice-content">1. 预约成功后请在15分钟内入场，超时将自动取消预约；\n2. 预约费用将在离场时与实际停车费用合并结算；\n3. 如需取消预约，请提前30分钟操作。</text>
   </view>
@@ -111,10 +116,11 @@
   <view class="bottom-bar">
     <view class="price-info">
       <text class="total-label">合计：</text>
-      <text class="total-price">¥{{estimatedCost}}</text>
+      <text class="total-price" wx:if="{{isOwnerSelfUse}}">免费</text>
+      <text class="total-price" wx:else>¥{{estimatedCost}}</text>
     </view>
     <button class="submit-btn {{canSubmit ? '' : 'disabled'}}" bindtap="submitReservation" disabled="{{!canSubmit}}">
-      确认预约
+      {{isOwnerSelfUse ? '确认预约（免费）' : '确认预约'}}
     </button>
   </view>
 </view>

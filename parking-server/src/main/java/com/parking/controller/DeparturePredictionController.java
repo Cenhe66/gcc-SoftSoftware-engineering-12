@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/prediction")
+@RequestMapping("/api/prediction")
 public class DeparturePredictionController {
 
     @Autowired

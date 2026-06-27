@@ -12,6 +12,7 @@
     "pages/share-record/share-record",
     "pages/share-bill/share-bill",
     "pages/move-car/move-car",
+    "pages/move-car-list/move-car-list",
     "pages/move-car-message/move-car-message",
     "pages/move-car-request/move-car-request",
     "pages/ar-find-car/ar-find-car",
@@ -37,25 +38,19 @@
         "pagePath": "pages/index/index",
         "text": "首页",
         "iconPath": "static/icons/home.png",
-        "selectedIconPath": "static/icons/home.png"
+        "selectedIconPath": "static/icons/home-active.png"
       },
       {
         "pagePath": "pages/reservation-list/reservation-list",
         "text": "预约",
         "iconPath": "static/icons/reservation.png",
-        "selectedIconPath": "static/icons/reservation.png"
-      },
-      {
-        "pagePath": "pages/parking-record/parking-record",
-        "text": "记录",
-        "iconPath": "static/icons/record.png",
-        "selectedIconPath": "static/icons/record.png"
+        "selectedIconPath": "static/icons/reservation-active.png"
       },
       {
         "pagePath": "pages/user-center/user-center",
         "text": "我的",
         "iconPath": "static/icons/user.png",
-        "selectedIconPath": "static/icons/user.png"
+        "selectedIconPath": "static/icons/user-active.png"
       }
     ]
   },
@@ -64,6 +59,10 @@
       "desc": "您的位置信息将用于小程序位置接口的效果展示"
     }
   },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "__usePrivacyCheck__": true,
   "requiredBackgroundModes": ["location"],
   "usingComponents": {},
   "sitemapLocation": "sitemap.json"

@@ -50,7 +50,7 @@
         <div class="card-header">
           <span class="card-title">车位使用率热力图</span>
         </div>
-        <HeatmapChart :data="dashboardStore.heatmapData" />
+        <HeatmapChart :data="dashboardStore.heatmapData" :yLabels="dashboardStore.heatmapLots" />
       </div>
       <div class="chart-card rank-card">
         <div class="card-header">
@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useDashboardStore } from '@/stores/dashboard'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import TrafficChart from '@/components/dashboard/TrafficChart.vue'
@@ -155,6 +155,11 @@ onMounted(() => {
   dataTimer = setInterval(() => {
     dashboardStore.fetchAllData()
   }, 30000)
+})
+
+// 监听车流趋势时间范围切换
+watch(trafficTimeRange, (newVal) => {
+  dashboardStore.fetchAllData(newVal)
 })
 
 onUnmounted(() => {

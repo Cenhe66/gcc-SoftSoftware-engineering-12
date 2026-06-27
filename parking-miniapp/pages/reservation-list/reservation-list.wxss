@@ -91,6 +91,11 @@
   background: rgba(7, 193, 96, 0.1);
 }
 
+.status-tag.unpaid {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+}
+
 .status-tag.completed {
   color: #969799;
   background: #f5f5f5;
@@ -246,6 +251,42 @@
   font-weight: 500;
 }
 
+/* 已停时长 */
+.duration-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.duration-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.duration-value {
+  font-size: 14px;
+  color: #07c160;
+  font-weight: 500;
+}
+
+/* 预估费用 */
+.estimated-fee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.fee-value {
+  font-size: 14px;
+  color: #ff976a;
+  font-weight: 500;
+}
+
 .action-btns {
   display: flex;
   gap: 8px;
@@ -271,6 +312,44 @@
 .btn.pay {
   background: #1989fa;
   color: #fff;
+}
+
+.btn.disabled {
+  background: #ebedf0;
+  color: #c8c9cc;
+}
+
+/* 支付倒计时 */
+.pay-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 107, 107, 0.08);
+  border-radius: 8px;
+  margin-right: 8px;
+}
+
+.pay-countdown .countdown-icon {
+  font-size: 14px;
+}
+
+.pay-countdown .countdown-label {
+  font-size: 12px;
+  color: #969799;
+}
+
+.pay-countdown .countdown-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.pay-countdown .countdown-value.warning {
+  color: #ff6b6b;
+}
+
+.pay-countdown .countdown-value.expired {
+  color: #c8c9cc;
 }
 
 /* 加载更多 */

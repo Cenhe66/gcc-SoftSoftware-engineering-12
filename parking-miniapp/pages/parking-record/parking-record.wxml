@@ -4,30 +4,30 @@
     <view class="section-title">当前停车</view>
     <view class="parking-card active">
       <view class="card-header">
-        <text class="parking-name">{{currentParking.parkingName}}</text>
+        <text class="parking-name">{{currentParking.parkingName || '未知停车场'}}</text>
         <text class="status-tag">停车中</text>
       </view>
       <view class="card-body">
         <view class="info-row">
           <text class="info-label">车位编号</text>
-          <text class="info-value">{{currentParking.spaceCode}}</text>
+          <text class="info-value">{{currentParking.spaceCode || currentParking.spaceNo || '-'}}</text>
         </view>
         <view class="info-row">
           <text class="info-label">入场时间</text>
-          <text class="info-value">{{currentParking.entryTime}}</text>
+          <text class="info-value">{{currentParking.entryTimeDisplay || currentParking.entryTime || '-'}}</text>
         </view>
         <view class="info-row">
           <text class="info-label">停车时长</text>
-          <text class="info-value highlight">{{currentParking.duration}}</text>
+          <text class="info-value highlight">{{currentParking.duration || '-'}}</text>
         </view>
         <view class="info-row">
           <text class="info-label">预计费用</text>
-          <text class="info-value price">¥{{currentParking.estimatedCost}}</text>
+          <text class="info-value price">¥{{currentParking.estimatedCost || '0.00'}}</text>
         </view>
       </view>
       <view class="card-footer">
         <button class="pay-btn" bindtap="goToPayment" data-record="{{currentParking}}">
-          立即缴费
+          离场缴费
         </button>
       </view>
     </view>
@@ -69,11 +69,11 @@
           <view class="time-info">
             <view class="time-row">
               <text class="time-label">入场</text>
-              <text class="time-value">{{item.entryTime}}</text>
+              <text class="time-value">{{item.entryTimeDisplay}}</text>
             </view>
             <view class="time-row">
               <text class="time-label">离场</text>
-              <text class="time-value">{{item.exitTime || '-'}}</text>
+              <text class="time-value">{{item.exitTimeDisplay}}</text>
             </view>
           </view>
           <view class="record-info">

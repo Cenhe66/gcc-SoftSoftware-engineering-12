@@ -77,6 +77,16 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = to.meta.title + ' - 智能停车管理系统'
   }
+
+  // 登录权限校验
+  if (!to.meta.public) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      next('/login')
+      return
+    }
+  }
+
   next()
 })
 

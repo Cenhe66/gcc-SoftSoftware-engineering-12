@@ -150,6 +150,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 // 搜索和分页
 const dateRange = ref([])
@@ -166,26 +167,56 @@ const recordList = ref([])
 const detailVisible = ref(false)
 const currentRecord = ref(null)
 
+// 时长格式化（分钟 -> X小时Y分）
+const formatDuration = (minutes) => {
+  if (!minutes && minutes !== 0) return '-'
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (h > 0 && m > 0) return `${h}小时${m}分`
+  if (h > 0) return `${h}小时`
+  return `${m}分`
+}
+
+// 后端数据转前端格式
+const formatRecordList = (list) => {
+  return list.map(item => ({
+    ...item,
+    spaceNumber: item.spaceCode || '-',
+    duration: formatDuration(item.durationMinutes),
+    status: item.recordStatus === 0 ? 'parking' : 'completed'
+  }))
+}
+
 // 加载数据
 const loadData = async () => {
   loading.value = true
-  // 模拟数据
-  setTimeout(() => {
-    recordList.value = [
-      { id: 1, plateNumber: '京A12345', parkingName: '万达广场停车场', spaceNumber: 'B2-015', entryTime: '2026-05-27 08:30:00', exitTime: '2026-05-27 12:30:00', duration: '4小时', fee: '32.00', status: 'completed' },
-      { id: 2, plateNumber: '京B67890', parkingName: '国贸中心停车场', spaceNumber: 'F1-088', entryTime: '2026-05-27 09:00:00', exitTime: null, duration: '3小时25分', fee: '35.00', status: 'parking' },
-      { id: 3, plateNumber: '京C11111', parkingName: '三里屯太古里停车场', spaceNumber: 'B1-022', entryTime: '2026-05-27 10:15:00', exitTime: '2026-05-27 14:45:00', duration: '4小时30分', fee: '54.00', status: 'completed' },
-      { id: 4, plateNumber: '京D22222', parkingName: '朝阳大悦城停车场', spaceNumber: 'B3-105', entryTime: '2026-05-27 11:00:00', exitTime: null, duration: '2小时15分', fee: '13.50', status: 'parking' },
-      { id: 5, plateNumber: '京E33333', parkingName: '望京SOHO停车场', spaceNumber: 'F2-056', entryTime: '2026-05-27 13:20:00', exitTime: '2026-05-27 15:50:00', duration: '2小时30分', fee: '12.50', status: 'completed' }
-    ]
-    total.value = 5
+  try {
+    const params = {
+      page: currentPage.value,
+      size: pageSize.value
+    }
+    if (statusFilter.value) {
+      params.recordStatus = statusFilter.value === 'parking' ? 0 : 1
+    }
+    if (dateRange.value && dateRange.value.length === 2) {
+      params.entryStart = dateRange.value[0] + ' 00:00:00'
+      params.entryEnd = dateRange.value[1] + ' 23:59:59'
+    }
+    const res = await request.get('/parking-record/admin/list', { params })
+    const data = res.data
+    recordList.value = formatRecordList(data.records || [])
+    total.value = data.total || 0
+  } catch (error) {
+    ElMessage.error('获取停车记录失败')
+  } finally {
     loading.value = false
-  }, 500)
+  }
 }
 
 // 分页
 const handleSizeChange = (val) => {
   pageSize.value = val
+  currentPage.value = 1
   loadData()
 }
 
@@ -259,21 +290,27 @@ onMounted(() => {
   }
 
   :deep(.el-table) {
+    --el-table-bg-color: transparent;
+    --el-table-tr-bg-color: transparent;
+    --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
+    --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.03);
+    --el-table-text-color: #{$text-secondary};
+    --el-table-header-text-color: #{$text-primary};
     background: transparent;
 
     th.el-table__cell {
-      background: rgba(255, 255, 255, 0.05);
-      color: $text-primary;
+      background: var(--el-table-header-bg-color);
+      color: var(--el-table-header-text-color);
       font-weight: 500;
     }
 
     td.el-table__cell {
       background: transparent;
-      color: $text-secondary;
+      color: var(--el-table-text-color);
     }
 
     tr:hover > td.el-table__cell {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--el-table-row-hover-bg-color);
     }
 
     &::before {

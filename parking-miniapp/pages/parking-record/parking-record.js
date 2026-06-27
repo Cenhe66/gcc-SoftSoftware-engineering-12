@@ -1,4 +1,4 @@
-const { get } = require('../../utils/request')
+const { get, post } = require('../../utils/request')
 const { showToast, showLoading, hideLoading, formatDate, formatDuration, getTimeDiff } = require('../../utils/util')
 
 Page({
@@ -51,22 +51,38 @@ Page({
     ])
   },
 
-  // 加载当前停车
+  // 加载当前停车（以预约流程为准：从预约接口获取进行中预约）
   loadCurrentParking() {
-    // 调用后端接口获取当前停车记录
     const userInfo = wx.getStorageSync('userInfo')
     const userId = userInfo ? userInfo.id : ''
-    return get(`/api/parking-record/list/${userId}`, {}, { hideLoading: true })
+    return get(`/api/reservation/list/${userId}`, { status: 1 }, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
-          const parking = res.data
-          parking.entryTime = formatDate(parking.entryTime, 'MM-DD HH:mm')
-          parking.duration = this.calculateDuration(parking.entryTime)
-          parking.estimatedCost = this.calculateCost(parking.entryTime, parking.pricePerHour)
-          
+          const list = res.data.records || res.data || []
+          const reservation = list[0]
+          if (!reservation) {
+            this.setMockCurrentParking()
+            return
+          }
+          const originalEntryTime = reservation.entryTime
+          const now = new Date()
+          const entry = new Date(originalEntryTime)
+          const parkedMinutes = Math.floor((now - entry) / (1000 * 60))
+          const hours = Math.floor(parkedMinutes / 60)
+          const mins = parkedMinutes % 60
+
+          const parking = {
+            ...reservation,
+            id: reservation.id,
+            parkingName: reservation.parkingName || '未知停车场',
+            spaceCode: reservation.spaceCode || '-',
+            entryTimeDisplay: formatDate(originalEntryTime, 'MM-DD HH:mm'),
+            duration: hours > 0 ? `${hours}小时${mins}分钟` : `${mins}分钟`,
+            estimatedCost: this.calculateCost(originalEntryTime, reservation.hourlyRate || 8),
+            reserveFee: reservation.reserveFee || '0.00'
+          }
           this.setData({ currentParking: parking })
         } else {
-          // 使用模拟数据
           this.setMockCurrentParking()
         }
       })
@@ -92,15 +108,26 @@ Page({
     return get(`/api/parking-record/list/${userId}`, params, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
-          const list = res.data.records || []
-          const processedList = list.map(item => ({
-            ...item,
-            entryTime: formatDate(item.entryTime, 'MM-DD HH:mm'),
-            exitTime: item.exitTime ? formatDate(item.exitTime, 'MM-DD HH:mm') : null,
-            duration: item.exitTime 
-              ? formatDuration(getTimeDiff(item.entryTime, item.exitTime))
-              : formatDuration(getTimeDiff(item.entryTime))
-          }))
+          const list = res.data.records || res.data || []
+          const processedList = list.map(item => {
+            // 先保存原始时间用于计算
+            const originalEntryTime = item.entryTime
+            const originalExitTime = item.exitTime
+            
+            return {
+              ...item,
+              // 字段映射，添加默认值防止 undefined
+              parkingName: item.parkingName || item.lotName || '未知停车场',
+              spaceCode: item.spaceCode || item.spaceNo || '-',
+              amount: item.fee || item.paidAmount || item.parkingFee || '0.00',
+              entryTimeDisplay: formatDate(originalEntryTime, 'MM-DD HH:mm'),
+              exitTimeDisplay: originalExitTime ? formatDate(originalExitTime, 'MM-DD HH:mm') : '-',
+              duration: originalExitTime 
+                ? formatDuration(getTimeDiff(originalEntryTime, originalExitTime))
+                : formatDuration(getTimeDiff(originalEntryTime)),
+              status: item.status || 0
+            }
+          })
 
           this.setData({
             recordList: this.data.pageNum === 1 ? processedList : [...this.data.recordList, ...processedList],
@@ -108,11 +135,20 @@ Page({
             loading: false
           })
         } else {
-          this.setMockRecordList()
+          this.setData({
+            recordList: [],
+            hasMore: false,
+            loading: false
+          })
         }
       })
-      .catch(() => {
-        this.setMockRecordList()
+      .catch(err => {
+        console.error('加载停车记录失败:', err)
+        this.setData({
+          recordList: [],
+          hasMore: false,
+          loading: false
+        })
       })
   },
 
@@ -140,19 +176,43 @@ Page({
     return formatDuration(minutes)
   },
 
-  // 计算预估费用
+  // 计算预估费用（与预约流程一致：扣除15分钟免费时长）
   calculateCost(entryTime, pricePerHour) {
     const minutes = getTimeDiff(entryTime)
-    const hours = Math.ceil(minutes / 60)
+    const freeMinutes = 15
+    const billableMinutes = minutes - freeMinutes
+    if (billableMinutes <= 0) {
+      return '0.00'
+    }
+    const hours = Math.ceil(billableMinutes / 60)
     return (hours * pricePerHour).toFixed(2)
   },
 
-  // 跳转到支付页面
+  // 离场缴费（以预约流程为准：先离场再支付）
   goToPayment(e) {
     const record = e.currentTarget.dataset.record
-    wx.navigateTo({
-      url: `/pages/payment/payment?recordId=${record.id}&amount=${record.estimatedCost}`
-    })
+    if (!record || !record.id) {
+      showToast('记录信息不完整')
+      return
+    }
+    showLoading('处理中...')
+    post(`/api/reservation/exit/${record.id}`)
+      .then(res => {
+        hideLoading()
+        if (res.code === 200) {
+          const parkingFee = res.data
+          wx.navigateTo({
+            url: `/pages/payment/payment?reservationId=${record.id}&amount=${parkingFee}&type=parking`
+          })
+        } else {
+          showToast(res.message || '离场失败')
+        }
+      })
+      .catch(err => {
+        hideLoading()
+        console.error('离场失败:', err)
+        showToast(err.message || '离场失败')
+      })
   },
 
   // 查看记录详情
@@ -160,7 +220,7 @@ Page({
     const record = e.currentTarget.dataset.record
     wx.showModal({
       title: '停车详情',
-      content: `停车场：${record.parkingName}\n车位：${record.spaceCode || '-'}\n入场：${record.entryTime}\n离场：${record.exitTime || '未离场'}\n时长：${record.duration}\n费用：¥${record.amount}`,
+      content: `停车场：${record.parkingName || '未知停车场'}\n车位：${record.spaceCode || '-'}\n入场：${record.entryTimeDisplay || '-'}\n离场：${record.exitTimeDisplay || '未离场'}\n时长：${record.duration || '-'}\n费用：¥${record.amount || '0.00'}`,
       showCancel: false
     })
   },

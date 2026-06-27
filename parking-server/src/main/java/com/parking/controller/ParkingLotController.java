@@ -23,7 +23,7 @@ public class ParkingLotController {
 
     @GetMapping("/detail/{id}")
     public Result<ParkingLot> detail(@PathVariable Long id) {
-        ParkingLot lot = parkingLotService.getById(id);
+        ParkingLot lot = parkingLotService.getDetailWithStats(id);
         return Result.success(lot);
     }
 

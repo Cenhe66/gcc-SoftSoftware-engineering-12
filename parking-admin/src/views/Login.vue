@@ -85,6 +85,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
+import request from '@/utils/request'
 
 const router = useRouter()
 
@@ -136,12 +137,25 @@ const handleLogin = async () => {
 
   loading.value = true
 
-  // 模拟登录
-  setTimeout(() => {
-    loading.value = false
+  try {
+    const res = await request.post('/admin/login', {
+      username: loginForm.value.username,
+      password: loginForm.value.password
+    })
+    const data = res.data
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('userInfo', JSON.stringify({
+      userId: data.userId,
+      nickname: data.nickname,
+      avatarUrl: data.avatarUrl
+    }))
     ElMessage.success('登录成功')
     router.push('/dashboard')
-  }, 1000)
+  } catch (error) {
+    ElMessage.error(error.message || '登录失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {

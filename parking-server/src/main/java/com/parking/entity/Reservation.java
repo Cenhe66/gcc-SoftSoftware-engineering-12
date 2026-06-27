@@ -30,9 +30,13 @@ public class Reservation {
 
     private BigDecimal reserveFee;
 
+    private BigDecimal parkingFee;  // 实际停车费
+
     private Integer status;
 
     private LocalDateTime entryTime;
+
+    private LocalDateTime exitTime;  // 离场时间
 
     private LocalDateTime cancelTime;
 

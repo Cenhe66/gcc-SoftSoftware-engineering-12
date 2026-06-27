@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/move-car")
+@RequestMapping("/api/move-car")
 public class MoveCarRequestController {
 
     @Autowired
@@ -45,5 +45,17 @@ public class MoveCarRequestController {
     public Result<List<MoveCarRequest>> listByTargetPlate(@PathVariable String targetPlate) {
         List<MoveCarRequest> list = moveCarRequestService.listByTargetPlate(targetPlate);
         return Result.success(list);
+    }
+
+    @GetMapping("/list/target/{targetUserId}")
+    public Result<List<MoveCarRequest>> listByTargetUserId(@PathVariable Long targetUserId) {
+        List<MoveCarRequest> list = moveCarRequestService.listByTargetUserId(targetUserId);
+        return Result.success(list);
+    }
+
+    @GetMapping("/request/{id}")
+    public Result<MoveCarRequest> getById(@PathVariable Long id) {
+        MoveCarRequest request = moveCarRequestService.getById(id);
+        return Result.success(request);
     }
 }

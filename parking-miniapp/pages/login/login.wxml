@@ -55,6 +55,14 @@
       <image class="wechat-icon" src="/static/icons/wechat.png" mode="aspectFit"></image>
       <text>微信一键登录</text>
     </button>
+
+    <view class="divider">
+      <text class="divider-text">测试入口</text>
+    </view>
+
+    <button class="test-btn" bindtap="showTestAccounts">
+      <text>选择测试账号</text>
+    </button>
   </view>
 
   <view class="login-footer">

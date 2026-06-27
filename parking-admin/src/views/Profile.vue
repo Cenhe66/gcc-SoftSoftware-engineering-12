@@ -278,6 +278,11 @@ const handleChangePassword = async () => {
   :deep(.el-card__header) {
     border-bottom: 1px solid $border-color;
     padding: $spacing-md $spacing-lg;
+    color: $text-primary;
+  }
+
+  :deep(.el-card__body) {
+    color: $text-secondary;
   }
 
   .card-header {
@@ -295,6 +300,10 @@ const handleChangePassword = async () => {
 
   :deep(.el-form-item__label) {
     color: $text-secondary;
+  }
+
+  :deep(.el-form-item__content) {
+    color: $text-primary;
   }
 
   .el-input {

@@ -68,10 +68,12 @@
 
         <!-- 操作按钮 -->
         <view class="action-bar" wx:if="{{item.status === 'active'}}">
+          <button class="btn qrcode" bindtap="showQrCode" data-space-id="{{item.spaceId}}">查看二维码</button>
           <button class="btn pause" bindtap="pauseShare" data-id="{{item.id}}">暂停共享</button>
           <button class="btn stop" bindtap="stopShare" data-id="{{item.id}}">结束共享</button>
         </view>
         <view class="action-bar" wx:if="{{item.status === 'paused'}}">
+          <button class="btn qrcode" bindtap="showQrCode" data-space-id="{{item.spaceId}}">查看二维码</button>
           <button class="btn resume" bindtap="resumeShare" data-id="{{item.id}}">恢复共享</button>
           <button class="btn stop" bindtap="stopShare" data-id="{{item.id}}">结束共享</button>
         </view>

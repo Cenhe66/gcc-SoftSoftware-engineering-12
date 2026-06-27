@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,6 +15,10 @@ public class User {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+
+    private String username;
+
+    private String password;
 
     private String openid;
 
@@ -32,6 +37,11 @@ public class User {
     private String profileTags;
 
     private Integer status;
+
+    /**
+     * 用户余额
+     */
+    private BigDecimal balance;
 
     @TableLogic
     private Integer deleted;

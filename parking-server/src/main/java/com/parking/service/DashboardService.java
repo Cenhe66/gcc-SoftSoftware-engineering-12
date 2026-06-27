@@ -4,5 +4,5 @@ import com.parking.vo.DashboardVO;
 
 public interface DashboardService {
 
-    DashboardVO getDashboardData();
+    DashboardVO getDashboardData(String range);
 }

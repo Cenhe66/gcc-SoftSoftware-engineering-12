@@ -12,4 +12,8 @@ public class UserUpdateDTO {
     private String plateNumber;
 
     private String profileTags;
+
+    private Integer userType;
+
+    private Integer status;
 }

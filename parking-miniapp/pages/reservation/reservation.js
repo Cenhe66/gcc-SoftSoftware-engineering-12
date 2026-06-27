@@ -7,6 +7,9 @@ Page({
     spaceId: null,
     spaceCode: '',
     spaceType: 0,
+    spaceDetail: null,
+    isOwnerSelfUse: false,
+    isShared: false,
     parkingInfo: {
       name: '',
       address: '',
@@ -85,11 +88,33 @@ Page({
 
   // 加载车位信息
   loadSpaceInfo(spaceId) {
-    // 这里可以调用API获取车位详情
-    this.setData({
-      spaceCode: 'B2-015',
-      spaceType: 0
-    })
+    const userInfo = wx.getStorageSync('userInfo')
+    get(`/api/parking-space/list?lotId=${this.data.parkingId}`)
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          const space = res.data.find(s => String(s.id) === String(spaceId))
+          if (space) {
+            const isOwnerSelfUse = space.ownerId != null && space.ownerId === (userInfo?.id || null)
+                && (space.isShared == null || space.isShared !== 1)
+            const isShared = space.isShared === 1
+            this.setData({
+              spaceCode: space.spaceNo || space.spaceCode || '',
+              spaceType: space.spaceType || 0,
+              spaceDetail: space,
+              isOwnerSelfUse,
+              isShared
+            }, () => {
+              this.calculateDuration()
+            })
+          }
+        }
+      })
+      .catch(() => {
+        this.setData({
+          spaceCode: 'B2-015',
+          spaceType: 0
+        })
+      })
   },
 
   // 日期选择
@@ -136,12 +161,23 @@ Page({
     if (duration < 0) duration = 0
 
     const hours = Math.ceil(duration / 60)
-    const pricePerHour = parseFloat(this.data.parkingInfo.pricePerHour) || 0
-    const cost = hours * pricePerHour
+    let reserveFee
+    let pricePerHour = this.data.parkingInfo.pricePerHour || 0
+
+    if (this.data.isOwnerSelfUse) {
+      reserveFee = 0
+      pricePerHour = 0
+    } else if (this.data.isShared && this.data.spaceDetail && this.data.spaceDetail.shareHourlyPrice) {
+      reserveFee = hours * 2
+      pricePerHour = this.data.spaceDetail.shareHourlyPrice
+    } else {
+      reserveFee = hours * 2
+    }
 
     this.setData({
       duration: hours,
-      estimatedCost: cost.toFixed(2)
+      estimatedCost: reserveFee.toFixed(2),
+      'parkingInfo.pricePerHour': pricePerHour
     })
 
     this.checkCanSubmit()
@@ -177,29 +213,29 @@ Page({
     if (!this.data.canSubmit) return
 
     const { parkingId, spaceId, selectedDate, startTime, endTime, plateNumber, phone } = this.data
+    const userInfo = wx.getStorageSync('userInfo')
 
     showLoading('提交中...')
 
+    // 合并日期和时间为完整的 LocalDateTime 格式
     const reservationData = {
-      parkingId: parseInt(parkingId),
-      spaceId: spaceId ? parseInt(spaceId) : null,
-      reservationDate: selectedDate,
-      startTime: startTime,
-      endTime: endTime,
+      userId: userInfo?.id || 1,
+      lotId: parseInt(parkingId),
+      spaceId: spaceId ? parseInt(spaceId) : 1,
       plateNumber: plateNumber,
-      phone: phone
+      startTime: `${selectedDate}T${startTime}:00`,
+      endTime: `${selectedDate}T${endTime}:00`
     }
 
-    post('/reservation/create', reservationData)
+    post('/api/reservation/create', reservationData)
       .then(res => {
         hideLoading()
         if (res.code === 200) {
-          showToast('预约成功', 'success')
-          setTimeout(() => {
-            wx.switchTab({
-              url: '/pages/reservation-list/reservation-list'
-            })
-          }, 1500)
+          // 预约创建成功，跳转到支付页面
+          const reservation = res.data
+          wx.navigateTo({
+            url: `/pages/payment/payment?reservationId=${reservation.id}&amount=${reservation.reserveFee || this.data.estimatedCost}&type=reservation`
+          })
         } else {
           showToast(res.message || '预约失败')
         }
@@ -207,13 +243,7 @@ Page({
       .catch(err => {
         hideLoading()
         console.error('预约失败:', err)
-        // 模拟成功
-        showToast('预约成功', 'success')
-        setTimeout(() => {
-          wx.switchTab({
-            url: '/pages/reservation-list/reservation-list'
-          })
-        }, 1500)
+        showToast(err.message || '预约失败')
       })
   },
 

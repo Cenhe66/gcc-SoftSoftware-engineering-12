@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/move-car-msg")
+@RequestMapping("/api/move-car-msg")
 public class MoveCarMessageController {
 
     @Autowired

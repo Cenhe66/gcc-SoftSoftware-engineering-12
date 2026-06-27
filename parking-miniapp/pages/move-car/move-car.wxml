@@ -23,6 +23,15 @@
   </view>
 
   <view class="input-section">
+    <view class="input-label">选择停车场</view>
+    <picker mode="selector" range="{{parkingLotNames}}" bindchange="onParkingLotChange">
+      <view class="picker {{selectedLotIndex >= 0 ? '' : 'placeholder'}}">
+        {{selectedLotIndex >= 0 ? parkingLotNames[selectedLotIndex] : '请选择停车场'}}
+      </view>
+    </picker>
+  </view>
+
+  <view class="input-section">
     <view class="input-label">输入车位编号</view>
     <view class="input-group">
       <input 
@@ -33,7 +42,7 @@
         bindinput="onSpaceCodeInput"
         maxlength="10"
       />
-      <button class="confirm-btn {{spaceCode ? '' : 'disabled'}}" bindtap="searchByCode" disabled="{{!spaceCode}}">
+      <button class="confirm-btn {{spaceCode && selectedLotIndex >= 0 ? '' : 'disabled'}}" bindtap="searchByCode" disabled="{{!spaceCode || selectedLotIndex < 0}}">
         确认
       </button>
     </view>

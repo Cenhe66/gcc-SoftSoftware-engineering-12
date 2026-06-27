@@ -69,7 +69,7 @@
           <el-dropdown @command="handleCommand">
             <div class="user-info">
               <el-avatar :size="32" :icon="UserFilled" />
-              <span class="username">管理员</span>
+              <span class="username">{{ userNickname }}</span>
               <el-icon><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
@@ -98,6 +98,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import Breadcrumb from './Breadcrumb.vue'
 
 const route = useRoute()
@@ -108,6 +109,16 @@ const isCollapse = ref(false)
 
 // 当前激活的菜单
 const activeMenu = computed(() => route.path)
+
+// 用户信息
+const userNickname = computed(() => {
+  try {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    return userInfo.nickname || '管理员'
+  } catch {
+    return '管理员'
+  }
+})
 
 // 切换侧边栏
 const toggleCollapse = () => {
@@ -133,7 +144,9 @@ const handleCommand = (command) => {
       router.push('/settings')
       break
     case 'logout':
-      // 退出登录逻辑
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      ElMessage.success('已退出登录')
       router.push('/login')
       break
   }
@@ -268,7 +281,7 @@ const handleCommand = (command) => {
 
 .main-content {
   padding: 0;
-  overflow: hidden;
+  overflow-y: auto;
   background: $bg-dark;
 }
 

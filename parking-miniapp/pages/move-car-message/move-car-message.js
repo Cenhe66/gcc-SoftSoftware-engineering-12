@@ -44,41 +44,37 @@ Page({
 
   // 加载请求信息
   loadRequestInfo(requestId) {
-    get(`/move-car/request/${requestId}`, {}, { hideLoading: true })
+    get(`/api/move-car/request/${requestId}`, {}, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
+          const data = res.data
           this.setData({
             requestInfo: {
-              ...res.data,
-              createTime: formatDate(res.data.createTime, 'MM-DD HH:mm'),
-              statusText: res.data.status === 0 ? '进行中' : '已结束'
+              ...data,
+              requesterId: data.requesterId,
+              targetUserId: data.targetUserId,
+              createTime: formatDate(data.createTime, 'MM-DD HH:mm'),
+              statusText: data.status === 0 ? '进行中' : '已结束'
             }
           })
         }
       })
       .catch(() => {
-        this.setData({
-          requestInfo: {
-            id: requestId,
-            spaceCode: 'B2-015',
-            createTime: '05-27 14:30',
-            status: 0,
-            statusText: '进行中'
-          }
-        })
+        showToast('加载请求信息失败')
       })
   },
 
   // 加载消息列表
   loadMessageList(requestId) {
-    get(`/move-car-msg/list/request/${requestId}`, { pageNum: 1, pageSize: 50 }, { hideLoading: true })
+    get(`/api/move-car-msg/list/request/${requestId}`, { pageNum: 1, pageSize: 50 }, { hideLoading: true })
       .then(res => {
         if (res.code === 200 && res.data) {
-          const list = res.data.records || []
+          const list = Array.isArray(res.data) ? res.data : (res.data.records || [])
+          const currentUserId = this.getCurrentUserId()
           const processedList = list.map(item => ({
             ...item,
             time: formatDate(item.createTime, 'HH:mm'),
-            isSelf: item.senderId === this.getCurrentUserId()
+            isSelf: item.senderId === currentUserId
           }))
 
           this.setData({
@@ -88,23 +84,7 @@ Page({
         }
       })
       .catch(() => {
-        this.setData({
-          messageList: [
-            {
-              id: 1,
-              content: '您的车辆挡住了我的车，请挪一下',
-              time: '14:30',
-              isSelf: false
-            },
-            {
-              id: 2,
-              content: '马上来挪车',
-              time: '14:32',
-              isSelf: true
-            }
-          ],
-          lastMessageId: 'msg-2'
-        })
+        this.setData({ messageList: [], lastMessageId: '' })
       })
   },
 
@@ -153,10 +133,11 @@ Page({
 
   // 处理新消息
   handleNewMessage(message) {
+    const currentUserId = this.getCurrentUserId()
     const newMessage = {
       ...message,
       time: formatDate(message.createTime, 'HH:mm'),
-      isSelf: message.senderId === this.getCurrentUserId()
+      isSelf: message.senderId === currentUserId
     }
 
     const messageList = [...this.data.messageList, newMessage]
@@ -166,10 +147,10 @@ Page({
     })
   },
 
-  // 获取当前用户ID
+  // 获取当前用户ID（匿名用户使用 0，与 move-car-request 保持一致）
   getCurrentUserId() {
     const userInfo = wx.getStorageSync('userInfo')
-    return userInfo ? userInfo.id : 0
+    return (userInfo && userInfo.id) ? userInfo.id : 0
   },
 
   // 输入消息
@@ -181,15 +162,27 @@ Page({
 
   // 发送消息
   sendMessage() {
-    const { requestId, inputMessage } = this.data
+    const { requestId, inputMessage, requestInfo } = this.data
     if (!inputMessage.trim()) return
+
+    const senderId = this.getCurrentUserId()
+    // receiverId：当前用户是请求方则发给车主，是车主则发给请求方
+    const receiverId = senderId === requestInfo.requesterId
+      ? requestInfo.targetUserId
+      : requestInfo.requesterId
+    if (receiverId === undefined || receiverId === null) {
+      showToast('无法获取对方信息')
+      return
+    }
 
     const messageData = {
       requestId: parseInt(requestId),
+      senderId: senderId,
+      receiverId: receiverId,
       content: inputMessage.trim()
     }
 
-    post('/move-car-msg/send', messageData)
+    post('/api/move-car-msg/send', messageData)
       .then(res => {
         if (res.code === 200) {
           this.setData({ inputMessage: '' })
@@ -199,19 +192,7 @@ Page({
         }
       })
       .catch(() => {
-        // 模拟发送成功
-        const newMessage = {
-          id: Date.now(),
-          content: inputMessage.trim(),
-          time: formatDate(new Date(), 'HH:mm'),
-          isSelf: true
-        }
-        const messageList = [...this.data.messageList, newMessage]
-        this.setData({
-          messageList,
-          inputMessage: '',
-          lastMessageId: `msg-${newMessage.id}`
-        })
+        showToast('发送失败，请重试')
       })
   },
 

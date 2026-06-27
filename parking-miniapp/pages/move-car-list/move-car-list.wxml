@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">挪车记录</text>
+    <text class="page-desc">点击记录可重新进入对话</text>
+  </view>
+
+  <view class="tab-bar" wx:if="{{userId}}">
+    <view class="tab-item {{activeTab === 'sent' ? 'active' : ''}}" bindtap="switchTab" data-tab="sent">我发起的</view>
+    <view class="tab-item {{activeTab === 'received' ? 'active' : ''}}" bindtap="switchTab" data-tab="received">我收到的</view>
+  </view>
+
+  <view class="record-list" wx:if="{{recordList.length > 0}}">
+    <view class="record-item" wx:for="{{recordList}}" wx:key="id" bindtap="viewRecordDetail" data-id="{{item.id}}">
+      <view class="record-info">
+        <text class="record-title">{{item.parkingName || '未知停车场'}}</text>
+        <text class="record-desc">车位 {{item.spaceCode || '-'}} · {{item.createTime}}</text>
+      </view>
+      <view class="record-status {{item.status === 0 ? 'pending' : 'done'}}">{{item.statusText || '已完成'}}</view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{recordList.length === 0 && !loading}}">
+    <image src="/static/icons/empty.png" mode="aspectFit"></image>
+    <text>{{emptyText}}</text>
+  </view>
+</view>

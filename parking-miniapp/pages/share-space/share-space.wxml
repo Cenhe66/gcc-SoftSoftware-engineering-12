@@ -5,40 +5,42 @@
     <text class="page-subtitle">将您的空闲车位共享给他人，赚取收益</text>
   </view>
 
-  <!-- 选择停车场 -->
+  <!-- 选择我的车位 -->
   <view class="section">
-    <view class="section-title">选择停车场</view>
-    <view class="parking-selector" bindtap="selectParking">
-      <view class="selector-content" wx:if="{{!selectedParking.id}}">
-        <image class="selector-icon" src="/static/icons/add.png" mode="aspectFit"></image>
-        <text class="selector-text">请选择停车场</text>
-      </view>
-      <view class="selector-content selected" wx:else>
-        <view class="selected-info">
-          <text class="selected-name">{{selectedParking.name}}</text>
-          <text class="selected-address">{{selectedParking.address}}</text>
+    <view class="section-title">选择我的车位</view>
+    <block wx:if="{{mySpaces.length > 0}}">
+      <view class="space-list">
+        <view
+          class="space-item {{selectedSpace.id === item.id ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
+          wx:for="{{mySpaces}}"
+          wx:key="id"
+          bindtap="selectMySpace"
+          data-index="{{index}}"
+        >
+          <view class="space-main">
+            <text class="space-name">{{item.displayName}}</text>
+            <text class="space-status {{item.statusClass}}">{{item.statusText}}</text>
+          </view>
+          <view wx:if="{{selectedSpace.id === item.id}}" class="check-dot"></view>
         </view>
-        <image class="arrow-icon" src="/static/icons/arrow-right.png" mode="aspectFit"></image>
       </view>
-    </view>
+    </block>
+    <block wx:else>
+      <view class="empty-tip">您暂无车位可共享</view>
+    </block>
   </view>
 
-  <!-- 车位信息 -->
+  <!-- 车位类型 -->
   <view class="section">
-    <view class="section-title">车位信息</view>
+    <view class="section-title">车位类型</view>
     <view class="form-item">
-      <text class="form-label">车位编号</text>
-      <input class="form-input" type="text" placeholder="如：B2-015" value="{{spaceCode}}" bindinput="onSpaceCodeInput" maxlength="10"/>
-    </view>
-    <view class="form-item">
-      <text class="form-label">车位类型</text>
       <view class="radio-group">
-        <view 
+        <view
           class="radio-item {{spaceType === 0 ? 'active' : ''}}"
           bindtap="selectSpaceType"
           data-type="0"
         >普通车位</view>
-        <view 
+        <view
           class="radio-item {{spaceType === 1 ? 'active' : ''}}"
           bindtap="selectSpaceType"
           data-type="1"

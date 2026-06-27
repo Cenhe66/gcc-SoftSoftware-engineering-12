@@ -64,8 +64,8 @@
           <template #default="{ row }">
             <el-switch
               v-model="row.status"
-              active-value="active"
-              inactive-value="inactive"
+              :active-value="1"
+              :inactive-value="0"
               @change="(val) => handleStatusChange(row, val)"
             />
           </template>
@@ -135,8 +135,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import request from '@/utils/request'
 
 // 搜索和分页
 const searchQuery = ref('')
@@ -159,31 +160,49 @@ const formData = ref({
   role: 'user'
 })
 
-const formRules = {
+const formRules = computed(() => ({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur', min: 6 }],
+  password: dialogType.value === 'add'
+    ? [{ required: true, message: '请输入密码', trigger: 'blur', min: 6 }]
+    : [],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }]
+}))
+
+// 后端数据转前端格式
+const formatUserList = (list) => {
+  return list.map(item => ({
+    ...item,
+    username: item.nickname || item.username || '-',
+    avatar: item.avatarUrl || '',
+    role: item.userType === 2 ? 'admin' : 'user',
+    registerTime: item.createTime || '',
+    status: item.status === 1 ? 1 : 0
+  }))
 }
 
 // 加载数据
 const loadData = async () => {
   loading.value = true
-  // 模拟数据
-  setTimeout(() => {
-    userList.value = [
-      { id: 1, username: '张三', phone: '13800138000', avatar: '', role: 'admin', registerTime: '2026-01-15 10:30:00', status: 'active' },
-      { id: 2, username: '李四', phone: '13800138001', avatar: '', role: 'user', registerTime: '2026-02-20 14:20:00', status: 'active' },
-      { id: 3, username: '王五', phone: '13800138002', avatar: '', role: 'user', registerTime: '2026-03-10 09:15:00', status: 'inactive' },
-      { id: 4, username: '赵六', phone: '13800138003', avatar: '', role: 'user', registerTime: '2026-04-05 16:45:00', status: 'active' },
-      { id: 5, username: '钱七', phone: '13800138004', avatar: '', role: 'user', registerTime: '2026-05-01 11:00:00', status: 'active' }
-    ]
-    total.value = 5
+  try {
+    const res = await request.get('/user/list', {
+      params: {
+        page: currentPage.value,
+        size: pageSize.value,
+        keyword: searchQuery.value || undefined
+      }
+    })
+    const data = res.data
+    userList.value = formatUserList(data.records || [])
+    total.value = data.total || 0
+  } catch (error) {
+    ElMessage.error('获取用户列表失败')
+  } finally {
     loading.value = false
-  }, 500)
+  }
 }
 
 // 搜索
@@ -195,6 +214,7 @@ const handleSearch = () => {
 // 分页
 const handleSizeChange = (val) => {
   pageSize.value = val
+  currentPage.value = 1
   loadData()
 }
 
@@ -204,8 +224,14 @@ const handleCurrentChange = (val) => {
 }
 
 // 状态切换
-const handleStatusChange = (row, val) => {
-  ElMessage.success(`用户 ${row.username} 已${val === 'active' ? '启用' : '禁用'}`)
+const handleStatusChange = async (row, val) => {
+  try {
+    await request.put(`/user/update/${row.id}`, { status: val })
+    ElMessage.success(`用户 ${row.username} 已${val === 1 ? '启用' : '禁用'}`)
+  } catch (error) {
+    ElMessage.error('状态更新失败')
+    row.status = val === 1 ? 0 : 1
+  }
 }
 
 // 新增
@@ -223,7 +249,13 @@ const handleAdd = () => {
 // 编辑
 const handleEdit = (row) => {
   dialogType.value = 'edit'
-  formData.value = { ...row }
+  formData.value = {
+    id: row.id,
+    username: row.username,
+    phone: row.phone,
+    role: row.role,
+    password: ''
+  }
   dialogVisible.value = true
 }
 
@@ -237,18 +269,42 @@ const handleDelete = (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     }
-  ).then(() => {
-    ElMessage.success('删除成功')
-    loadData()
+  ).then(async () => {
+    try {
+      await request.delete(`/user/delete/${row.id}`)
+      ElMessage.success('删除成功')
+      loadData()
+    } catch (error) {
+      ElMessage.error('删除失败')
+    }
   })
 }
 
 // 提交表单
 const handleSubmit = async () => {
   await formRef.value.validate()
-  ElMessage.success(dialogType.value === 'add' ? '新增成功' : '编辑成功')
-  dialogVisible.value = false
-  loadData()
+  const payload = {
+    nickname: formData.value.username,
+    phone: formData.value.phone,
+    userType: formData.value.role === 'admin' ? 2 : 0,
+    status: 1
+  }
+  try {
+    if (dialogType.value === 'add') {
+      if (formData.value.password) {
+        payload.password = formData.value.password
+      }
+      await request.post('/user/add', payload)
+      ElMessage.success('新增成功')
+    } else {
+      await request.put(`/user/update/${formData.value.id}`, payload)
+      ElMessage.success('编辑成功')
+    }
+    dialogVisible.value = false
+    loadData()
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败')
+  }
 }
 
 onMounted(() => {
@@ -301,21 +357,27 @@ onMounted(() => {
   }
 
   :deep(.el-table) {
+    --el-table-bg-color: transparent;
+    --el-table-tr-bg-color: transparent;
+    --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
+    --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.03);
+    --el-table-text-color: #{$text-secondary};
+    --el-table-header-text-color: #{$text-primary};
     background: transparent;
 
     th.el-table__cell {
-      background: rgba(255, 255, 255, 0.05);
-      color: $text-primary;
+      background: var(--el-table-header-bg-color);
+      color: var(--el-table-header-text-color);
       font-weight: 500;
     }
 
     td.el-table__cell {
       background: transparent;
-      color: $text-secondary;
+      color: var(--el-table-text-color);
     }
 
     tr:hover > td.el-table__cell {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--el-table-row-hover-bg-color);
     }
 
     &::before {

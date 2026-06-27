@@ -7,7 +7,12 @@ Page({
     code: '',
     countdown: 0,
     agreed: false,
-    canLogin: false
+    canLogin: false,
+    testAccounts: [
+      { openid: 'test_openid_001', nickname: '测试用户-张三', phone: '13800138001', avatarUrl: '' },
+      { openid: 'test_openid_002', nickname: '测试用户-李四', phone: '13800138002', avatarUrl: '' },
+      { openid: 'test_openid_003', nickname: '测试用户-王五', phone: '13800138003', avatarUrl: '' }
+    ]
   },
 
   onLoad() {
@@ -96,9 +101,15 @@ Page({
       hideLoading()
       if (res.code === 200 && res.data) {
         // 保存登录信息
-        getApp().setToken(res.data.token || 'mock_token_' + Date.now())
-        getApp().setUserInfo(res.data.user || { phone, nickName: '用户' + phone.slice(-4) })
-        
+        getApp().setToken(res.data.token)
+        getApp().setUserInfo({
+          id: res.data.userId,
+          nickName: res.data.nickname,
+          avatarUrl: res.data.avatarUrl,
+          userType: res.data.userType,
+          phone: phone
+        })
+
         showToast('登录成功', 'success')
         setTimeout(() => {
           wx.switchTab({ url: '/pages/index/index' })
@@ -132,9 +143,14 @@ Page({
           }).then(result => {
             hideLoading()
             if (result.code === 200 && result.data) {
-              getApp().setToken(result.data.token || 'mock_token_' + Date.now())
-              getApp().setUserInfo(result.data.user || { nickName: '微信用户' })
-              
+              getApp().setToken(result.data.token)
+              getApp().setUserInfo({
+                id: result.data.userId,
+                nickName: result.data.nickname,
+                avatarUrl: result.data.avatarUrl,
+                userType: result.data.userType
+              })
+
               showToast('登录成功', 'success')
               setTimeout(() => {
                 wx.switchTab({ url: '/pages/index/index' })
@@ -145,8 +161,7 @@ Page({
           }).catch(err => {
             hideLoading()
             console.error('登录失败:', err)
-            // 模拟登录成功（用于测试）
-            this.mockLogin()
+            showToast('登录失败，请重试')
           })
         } else {
           hideLoading()
@@ -158,25 +173,6 @@ Page({
         showToast('微信登录失败')
       }
     })
-  },
-
-  // 模拟登录（测试用）
-  mockLogin() {
-    const mockUser = {
-      id: 1,
-      nickName: '测试用户',
-      phone: '13800138000',
-      avatar: ''
-    }
-    const mockToken = 'mock_token_' + Date.now()
-    
-    getApp().setToken(mockToken)
-    getApp().setUserInfo(mockUser)
-    
-    showToast('登录成功', 'success')
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/index/index' })
-    }, 1500)
   },
 
   // 显示用户协议
@@ -194,6 +190,50 @@ Page({
       title: '隐私政策',
       content: '这里是隐私政策内容...',
       showCancel: false
+    })
+  },
+
+  // 显示测试账号选择
+  showTestAccounts() {
+    const accounts = this.data.testAccounts
+    wx.showActionSheet({
+      itemList: accounts.map(item => item.nickname),
+      success: (res) => {
+        const account = accounts[res.tapIndex]
+        this.testLogin(account)
+      }
+    })
+  },
+
+  // 测试账号登录
+  testLogin(account) {
+    showLoading('登录中...')
+    post('/api/user/login', {
+      openid: account.openid,
+      nickname: account.nickname,
+      avatarUrl: account.avatarUrl || ''
+    }).then(res => {
+      hideLoading()
+      if (res.code === 200 && res.data) {
+        getApp().setToken(res.data.token)
+        getApp().setUserInfo({
+          id: res.data.userId,
+          nickName: res.data.nickname,
+          avatarUrl: res.data.avatarUrl,
+          userType: res.data.userType,
+          phone: account.phone
+        })
+        showToast('登录成功', 'success')
+        setTimeout(() => {
+          wx.switchTab({ url: '/pages/index/index' })
+        }, 1000)
+      } else {
+        showToast(res.message || '登录失败')
+      }
+    }).catch(err => {
+      hideLoading()
+      console.error('测试登录失败:', err)
+      showToast('登录失败')
     })
   },
 

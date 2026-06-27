@@ -326,6 +326,96 @@
   color: #969799;
 }
 
+/* 车位列表 */
+.space-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.space-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.space-item.active {
+  background: #e6f2ff;
+  border-color: #1989fa;
+}
+
+.space-item.disabled {
+  opacity: 0.55;
+}
+
+.space-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.space-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #323233;
+}
+
+.space-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.status-free {
+  color: #07c160;
+  background: rgba(7, 193, 96, 0.1);
+}
+
+.status-shared {
+  color: #ff976a;
+  background: rgba(255, 151, 106, 0.1);
+}
+
+.status-occupied {
+  color: #969799;
+  background: rgba(150, 151, 153, 0.1);
+}
+
+.check-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1989fa;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.check-dot::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  width: 4px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.empty-tip {
+  text-align: center;
+  padding: 24px 0;
+  font-size: 14px;
+  color: #969799;
+}
+
 /* 共享须知 */
 .notice {
   background: rgba(255, 151, 106, 0.1);

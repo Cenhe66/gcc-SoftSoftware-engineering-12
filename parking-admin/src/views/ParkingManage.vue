@@ -141,8 +141,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import request from '@/utils/request'
 
 // 搜索和分页
 const searchQuery = ref('')
@@ -151,8 +152,20 @@ const pageSize = ref(10)
 const total = ref(0)
 const loading = ref(false)
 
-// 停车场列表
-const parkingList = ref([])
+// 原始停车场列表（后端返回）
+const allParkingList = ref([])
+
+// 停车场列表（前端分页过滤后）
+const parkingList = computed(() => {
+  let filtered = allParkingList.value
+  if (searchQuery.value) {
+    const kw = searchQuery.value.trim()
+    filtered = filtered.filter(item => item.name && item.name.includes(kw))
+  }
+  total.value = filtered.length
+  const start = (currentPage.value - 1) * pageSize.value
+  return filtered.slice(start, start + pageSize.value)
+})
 
 // 对话框
 const dialogVisible = ref(false)
@@ -163,7 +176,8 @@ const formData = ref({
   address: '',
   totalSpaces: 100,
   hourlyRate: 5.00,
-  status: 'open'
+  status: 'open',
+  availableSpaces: 100
 })
 
 const formRules = {
@@ -180,38 +194,47 @@ const getUsageColor = (rate) => {
   return '#67C23A'
 }
 
+// 后端数据转前端格式
+const formatParkingList = (list) => {
+  return list.map(item => {
+    const total = item.totalSpaces || 0
+    const occupied = item.occupiedSpaces || 0
+    return {
+      ...item,
+      usedSpaces: occupied,
+      usageRate: total > 0 ? Math.round((occupied / total) * 100) : 0,
+      status: item.status === 1 ? 'open' : 'closed'
+    }
+  })
+}
+
 // 加载数据
 const loadData = async () => {
   loading.value = true
-  // 模拟数据
-  setTimeout(() => {
-    parkingList.value = [
-      { id: 1, name: '万达广场停车场', address: '北京市朝阳区建国路88号', totalSpaces: 500, usedSpaces: 420, usageRate: 84, hourlyRate: 8.00, status: 'open' },
-      { id: 2, name: '国贸中心停车场', address: '北京市朝阳区建国门外大街1号', totalSpaces: 800, usedSpaces: 720, usageRate: 90, hourlyRate: 10.00, status: 'open' },
-      { id: 3, name: '三里屯太古里停车场', address: '北京市朝阳区三里屯路19号', totalSpaces: 300, usedSpaces: 280, usageRate: 93, hourlyRate: 12.00, status: 'open' },
-      { id: 4, name: '朝阳大悦城停车场', address: '北京市朝阳区朝阳北路101号', totalSpaces: 600, usedSpaces: 450, usageRate: 75, hourlyRate: 6.00, status: 'open' },
-      { id: 5, name: '望京SOHO停车场', address: '北京市朝阳区望京街9号', totalSpaces: 400, usedSpaces: 280, usageRate: 70, hourlyRate: 5.00, status: 'open' }
-    ]
-    total.value = 5
+  try {
+    const res = await request.get('/parking-lot/list')
+    allParkingList.value = formatParkingList(res.data || [])
+    total.value = allParkingList.value.length
+  } catch (error) {
+    ElMessage.error('获取停车场列表失败')
+  } finally {
     loading.value = false
-  }, 500)
+  }
 }
 
 // 搜索
 const handleSearch = () => {
   currentPage.value = 1
-  loadData()
 }
 
 // 分页
 const handleSizeChange = (val) => {
   pageSize.value = val
-  loadData()
+  currentPage.value = 1
 }
 
 const handleCurrentChange = (val) => {
   currentPage.value = val
-  loadData()
 }
 
 // 新增
@@ -222,7 +245,8 @@ const handleAdd = () => {
     address: '',
     totalSpaces: 100,
     hourlyRate: 5.00,
-    status: 'open'
+    status: 'open',
+    availableSpaces: 100
   }
   dialogVisible.value = true
 }
@@ -230,7 +254,15 @@ const handleAdd = () => {
 // 编辑
 const handleEdit = (row) => {
   dialogType.value = 'edit'
-  formData.value = { ...row }
+  formData.value = {
+    id: row.id,
+    name: row.name,
+    address: row.address,
+    totalSpaces: row.totalSpaces,
+    hourlyRate: row.hourlyRate,
+    status: row.status,
+    availableSpaces: row.availableSpaces
+  }
   dialogVisible.value = true
 }
 
@@ -244,18 +276,43 @@ const handleDelete = (row) => {
       cancelButtonText: '取消',
       type: 'warning'
     }
-  ).then(() => {
-    ElMessage.success('删除成功')
-    loadData()
+  ).then(async () => {
+    try {
+      await request.delete(`/parking-lot/delete/${row.id}`)
+      ElMessage.success('删除成功')
+      loadData()
+    } catch (error) {
+      ElMessage.error('删除失败')
+    }
   })
 }
 
 // 提交表单
 const handleSubmit = async () => {
   await formRef.value.validate()
-  ElMessage.success(dialogType.value === 'add' ? '新增成功' : '编辑成功')
-  dialogVisible.value = false
-  loadData()
+  const payload = {
+    name: formData.value.name,
+    address: formData.value.address,
+    totalSpaces: formData.value.totalSpaces,
+    hourlyRate: formData.value.hourlyRate,
+    status: formData.value.status === 'open' ? 1 : 0
+  }
+  try {
+    if (dialogType.value === 'add') {
+      payload.availableSpaces = formData.value.totalSpaces
+      await request.post('/parking-lot/add', payload)
+      ElMessage.success('新增成功')
+    } else {
+      payload.id = formData.value.id
+      payload.availableSpaces = formData.value.availableSpaces
+      await request.put('/parking-lot/update', payload)
+      ElMessage.success('编辑成功')
+    }
+    dialogVisible.value = false
+    loadData()
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败')
+  }
 }
 
 onMounted(() => {
@@ -308,21 +365,27 @@ onMounted(() => {
   }
 
   :deep(.el-table) {
+    --el-table-bg-color: transparent;
+    --el-table-tr-bg-color: transparent;
+    --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
+    --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.03);
+    --el-table-text-color: #{$text-secondary};
+    --el-table-header-text-color: #{$text-primary};
     background: transparent;
 
     th.el-table__cell {
-      background: rgba(255, 255, 255, 0.05);
-      color: $text-primary;
+      background: var(--el-table-header-bg-color);
+      color: var(--el-table-header-text-color);
       font-weight: 500;
     }
 
     td.el-table__cell {
       background: transparent;
-      color: $text-secondary;
+      color: var(--el-table-text-color);
     }
 
     tr:hover > td.el-table__cell {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--el-table-row-hover-bg-color);
     }
 
     &::before {

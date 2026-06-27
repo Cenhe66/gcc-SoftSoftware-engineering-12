@@ -14,4 +14,8 @@ public interface ParkingSpaceService extends IService<ParkingSpace> {
     boolean updateStatus(Long id, Integer status);
 
     boolean updateLockStatus(Long id, Integer lockStatus);
+
+    ParkingSpace getByLotIdAndSpaceNo(Long lotId, String spaceNo);
+
+    List<ParkingSpace> listByOwnerId(Long ownerId);
 }

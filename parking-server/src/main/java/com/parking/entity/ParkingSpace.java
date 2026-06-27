@@ -1,6 +1,7 @@
 package com.parking.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -37,6 +38,12 @@ public class ParkingSpace {
     private Long ownerId;
 
     private Integer isShared;
+
+    /**
+     * 共享单价（非数据库字段，仅用于前端展示）
+     */
+    @TableField(exist = false)
+    private BigDecimal shareHourlyPrice;
 
     @TableLogic
     private Integer deleted;
